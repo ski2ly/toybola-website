@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
@@ -49,58 +50,114 @@ const handleUpload = async () => {
   }
 }
 
-const downloadTemplate = () => {
-  // Создаем пример Excel файла
-  const headers = [
-    'sku', 'name_ru', 'name_en', 'category', 'subcategory',
-    'description_ru', 'age', 'material', 'weight_kg', 'dimensions',
-    'packaging', 'moq', 'price_min_usd', 'price_max_usd', 'image_url'
-  ]
+const downloadTemplate = async () => {
+  // Динамически импортируем ExcelJS для создания настоящего XLSX файла
+  const ExcelJS = (await import('exceljs')).default;
   
-  const example = [
-    'TB-007', 'RIFLE AK', 'RIFLE AK', 'Транспорт', 'Военная техника',
-    'Игрушечная винтовка', '3+', 'ABS-пластик', '0.8', '45x15x10 см',
-    'Цветная коробка', '100', '5.50', '8.00', 'https://...'
-  ]
-
-  const csvContent = [headers.join(','), example.join(',')].join('\n')
-  const blob = new Blob([csvContent], { type: 'text/csv' })
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'import_template.csv'
-  a.click()
-  window.URL.revokeObjectURL(url)
+  const workbook = new ExcelJS.Workbook();
+  workbook.creator = 'Toybola';
+  workbook.created = new Date();
+  
+  const worksheet = workbook.addWorksheet('Шаблон импорта');
+  
+  // Настройки колонок
+  worksheet.columns = [
+    { header: 'Наименование товара', key: 'name', width: 25 },
+    { header: 'Артикул товара', key: 'sku', width: 15 },
+    { header: 'Категория', key: 'category', width: 20 },
+    { header: 'Карточка товара (фото)', key: 'image', width: 35 },
+    { header: 'Цвета', key: 'colors', width: 25 },
+    { header: 'Подкатегория', key: 'subcategory', width: 25 },
+    { header: 'Возрастная группа', key: 'age', width: 20 },
+    { header: 'Материал', key: 'material', width: 20 },
+    { header: 'Цена (USD)', key: 'price', width: 15 },
+    { header: 'Минимальный заказ (шт)', key: 'moq', width: 20 }
+  ];
+  
+  // Стиль заголовка
+  const headerStyle = {
+    font: { bold: true, color: { argb: 'FFFFFFFF' } },
+    fill: {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF77CED8' }
+    },
+    alignment: { vertical: 'middle', horizontal: 'center', wrapText: true }
+  };
+  
+  // Применяем стиль к заголовку
+  worksheet.getRow(1).eachCell((cell) => {
+    cell.style = headerStyle;
+  });
+  
+  // Примеры данных
+  const examples = [
+    {
+      name: 'RIFLE AK',
+      sku: 'TB-007',
+      category: 'Транспорт',
+      image: 'https://example.com/image1.jpg',
+      colors: 'Черный, Зеленый',
+      subcategory: 'Военная техника',
+      age: '3+',
+      material: 'ABS-пластик',
+      price: 5.50,
+      moq: 100
+    },
+    {
+      name: 'Замок принцессы',
+      sku: 'TB-101',
+      category: 'Наборы',
+      image: 'https://example.com/image2.jpg',
+      colors: 'Розовый, Фиолетовый',
+      subcategory: 'Принцессы',
+      age: '3+',
+      material: 'ABS-пластик',
+      price: 35.00,
+      moq: 20
+    },
+    {
+      name: 'Экскаватор строительный',
+      sku: 'TB-015',
+      category: 'Транспорт',
+      image: 'https://example.com/image3.jpg',
+      colors: 'Желтый, Черный',
+      subcategory: 'Строительная техника',
+      age: '6+',
+      material: 'Металл, Пластик',
+      price: 12.00,
+      moq: 50
+    }
+  ];
+  
+  // Добавляем примеры
+  examples.forEach(example => {
+    worksheet.addRow(example);
+  });
+  
+  // Скачиваем файл
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Шаблон_импорта_Toybola.xlsx';
+  a.click();
+  window.URL.revokeObjectURL(url);
 }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-100">
-    <!-- Admin Header -->
-    <header class="bg-white shadow">
-      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-          <div class="text-2xl font-bold text-brand-red">TOYBOLA Admin</div>
-          <nav class="hidden md:flex gap-4">
-            <router-link to="/admin" class="text-gray-600 hover:text-brand-blue">Dashboard</router-link>
-            <router-link to="/admin/products" class="text-gray-600 hover:text-brand-blue">Продукты</router-link>
-            <router-link to="/admin/categories" class="text-gray-600 hover:text-brand-blue">Категории</router-link>
-            <router-link to="/admin/products/import" class="text-brand-blue font-medium">Импорт Excel</router-link>
-          </nav>
-        </div>
-        <router-link to="/admin/login" class="px-4 py-2 text-gray-600 hover:text-red-600">
-          Выход
-        </router-link>
+  <AdminLayout>
+    <div class="max-w-4xl mx-auto">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Импорт Excel</h1>
+        <p class="text-gray-600">Массовая загрузка каталога из Excel файла</p>
       </div>
-    </header>
-
-    <!-- Content -->
-    <main class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-8">Импорт каталога из Excel</h1>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <!-- Upload Section -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white rounded-xl shadow-sm p-6">
           <h2 class="text-xl font-semibold mb-4">Загрузка файла</h2>
 
           <!-- File Input -->
@@ -154,9 +211,12 @@ const downloadTemplate = () => {
             </button>
             <button
               @click="downloadTemplate"
-              class="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              class="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
             >
-              Шаблон CSV
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+              </svg>
+              Скачать шаблон Excel
             </button>
           </div>
 
@@ -216,7 +276,7 @@ const downloadTemplate = () => {
       </div>
 
       <!-- Instructions -->
-      <div class="mt-8 bg-white rounded-lg shadow p-6">
+      <div class="mt-8 bg-white rounded-xl shadow-sm p-6">
         <h2 class="text-xl font-semibold mb-4">Инструкция по заполнению</h2>
         <div class="prose max-w-none text-gray-700">
           <table class="w-full border-collapse">
@@ -230,57 +290,112 @@ const downloadTemplate = () => {
             </thead>
             <tbody>
               <tr>
-                <td class="border p-2 font-mono text-sm">sku</td>
+                <td class="border p-2 font-semibold text-gray-900">Наименование товара</td>
                 <td class="border p-2 text-green-600">✅ Да</td>
-                <td class="border p-2">Артикул товара (уникальный)</td>
-                <td class="border p-2 font-mono text-sm">TB-007</td>
-              </tr>
-              <tr>
-                <td class="border p-2 font-mono text-sm">name_ru</td>
-                <td class="border p-2 text-green-600">✅ Да</td>
-                <td class="border p-2">Название на русском</td>
+                <td class="border p-2">Название товара</td>
                 <td class="border p-2">RIFLE AK</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">category</td>
+                <td class="border p-2 font-semibold text-gray-900">Артикул товара</td>
                 <td class="border p-2 text-green-600">✅ Да</td>
-                <td class="border p-2">Категория</td>
+                <td class="border p-2">Уникальный артикул (SKU)</td>
+                <td class="border p-2 font-mono text-sm">TB-007</td>
+              </tr>
+              <tr>
+                <td class="border p-2 font-semibold text-gray-900">Категория</td>
+                <td class="border p-2 text-green-600">✅ Да</td>
+                <td class="border p-2">Название категории</td>
                 <td class="border p-2">Транспорт</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">subcategory</td>
-                <td class="border p-2 text-green-600">✅ Да</td>
-                <td class="border p-2">Подкатегория</td>
+                <td class="border p-2 font-semibold text-gray-900">Карточка товара (фото)</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Ссылка на изображение</td>
+                <td class="border p-2 font-mono text-sm">https://...</td>
+              </tr>
+              <tr>
+                <td class="border p-2 font-semibold text-gray-900">Цвета</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Перечисление через запятую</td>
+                <td class="border p-2">Черный, Зеленый</td>
+              </tr>
+              <tr>
+                <td class="border p-2 font-semibold text-gray-900">Подкатегория</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Название подкатегории</td>
                 <td class="border p-2">Военная техника</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">age</td>
-                <td class="border p-2 text-gray-400">Нет</td>
-                <td class="border p-2">Возрастная группа</td>
+                <td class="border p-2 font-semibold text-gray-900">Возрастная группа</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Возрастное ограничение</td>
                 <td class="border p-2">3+</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">material</td>
-                <td class="border p-2 text-gray-400">Нет</td>
-                <td class="border p-2">Материал</td>
+                <td class="border p-2 font-semibold text-gray-900">Материал</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Материал изготовления</td>
                 <td class="border p-2">ABS-пластик</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">price_min_usd</td>
-                <td class="border p-2 text-gray-400">Нет</td>
-                <td class="border p-2">Минимальная цена</td>
-                <td class="border p-2">5.50</td>
+                <td class="border p-2 font-semibold text-gray-900">Цена (USD)</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Цена в долларах США</td>
+                <td class="border p-2 font-mono text-sm">5.50</td>
               </tr>
               <tr>
-                <td class="border p-2 font-mono text-sm">moq</td>
-                <td class="border p-2 text-gray-400">Нет</td>
-                <td class="border p-2">Минимальный заказ</td>
-                <td class="border p-2">100</td>
+                <td class="border p-2 font-semibold text-gray-900">Минимальный заказ (шт)</td>
+                <td class="border p-2 text-gray-400">⚪ Нет</td>
+                <td class="border p-2">Минимальное количество</td>
+                <td class="border p-2 font-mono text-sm">100</td>
               </tr>
             </tbody>
           </table>
         </div>
+
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div class="text-sm text-green-800">
+                <p class="font-semibold mb-1">Обязательные поля:</p>
+                <p>Наименование товара, Артикул товара, Категория</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div class="flex items-start gap-3">
+              <svg class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div class="text-sm text-blue-800">
+                <p class="font-semibold mb-1">Важно:</p>
+                <p>Артикул должен быть уникальным - по нему определяется обновление товара</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-purple-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+            </svg>
+            <div class="text-sm text-purple-800">
+              <p class="font-semibold mb-2">Как загрузить:</p>
+              <ol class="list-decimal list-inside space-y-1">
+                <li>Нажмите <strong>"Скачать шаблон Excel"</strong> чтобы скачать готовый файл</li>
+                <li>Заполните файл своими данными в Excel или Google Sheets</li>
+                <li>Сохраните файл в формате .xlsx или .xls</li>
+                <li>Загрузите файл через форму выше</li>
+              </ol>
+            </div>
+          </div>
+        </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </AdminLayout>
 </template>

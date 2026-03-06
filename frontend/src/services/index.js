@@ -118,3 +118,21 @@ export const importService = {
     return api.get(`/import/logs/${id}`)
   }
 }
+
+export const contactFormService = {
+  submit(data) {
+    return api.post('/contact-form/submit', data)
+  },
+
+  getAll(params = {}) {
+    return api.get('/admin/contact-form', { params })
+  },
+
+  updateStatus(id, status) {
+    return api.patch(`/admin/contact-form/${id}/status`, { status })
+  },
+
+  delete(id) {
+    return api.delete(`/admin/contact-form/${id}`)
+  }
+}

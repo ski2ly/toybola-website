@@ -1,0 +1,39 @@
+# robots.txt for Toybola
+# https://toybola.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Allow all main pages
+Allow: /
+Allow: /about
+Allow: /catalog
+Allow: /contacts
+Allow: /production
+
+# Allow product pages
+Allow: /product/*
+
+# Allow admin login but block dashboard
+Disallow: /admin/
+Allow: /admin/login
+
+# Sitemap location
+Sitemap: https://toybola.com/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Block sensitive files
+Disallow: /*.env$
+Disallow: /*.git$
+Disallow: /src/
+Disallow: /node_modules/
+
+# Block API endpoints
+Disallow: /api/
+
+# Block query parameters for cleaner indexing
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=

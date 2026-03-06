@@ -2,14 +2,6 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
 import { slugify } from '../utils/slugify';
-import { Decimal } from '@prisma/client/runtime/library';
-
-// Helper function to convert Decimal to number
-function toNumber(value: any): number | null {
-  if (value === null || value === undefined) return null;
-  if (value instanceof Decimal) return value.toNumber();
-  return Number(value);
-}
 
 @Injectable()
 export class ProductsService {
@@ -147,13 +139,7 @@ export class ProductsService {
       throw new NotFoundException(`Product with SKU "${sku}" not found`);
     }
 
-    // Convert Decimal fields to number
-    return {
-      ...product,
-      weightKg: toNumber(product.weightKg),
-      priceMinUsd: toNumber(product.priceMinUsd),
-      priceMaxUsd: toNumber(product.priceMaxUsd),
-    };
+    return product;
   }
 
   async findOne(slug: string) {
@@ -176,13 +162,7 @@ export class ProductsService {
       throw new NotFoundException(`Product with slug "${slug}" not found`);
     }
 
-    // Convert Decimal fields to number
-    return {
-      ...product,
-      weightKg: toNumber(product.weightKg),
-      priceMinUsd: toNumber(product.priceMinUsd),
-      priceMaxUsd: toNumber(product.priceMaxUsd),
-    };
+    return product;
   }
 
   async create(dto: CreateProductDto) {
@@ -200,9 +180,9 @@ export class ProductsService {
       data: {
         ...dto,
         slug,
-        weightKg: dto.weightKg ? new Decimal(dto.weightKg) : undefined,
-        priceMinUsd: dto.priceMinUsd ? new Decimal(dto.priceMinUsd) : undefined,
-        priceMaxUsd: dto.priceMaxUsd ? new Decimal(dto.priceMaxUsd) : undefined,
+        weightKg: dto.weightKg || undefined,
+        priceMinUsd: dto.priceMinUsd || undefined,
+        priceMaxUsd: dto.priceMaxUsd || undefined,
       },
       include: {
         subcategory: {
@@ -213,13 +193,7 @@ export class ProductsService {
       },
     });
 
-    // Convert Decimal fields to number
-    return {
-      ...product,
-      weightKg: toNumber(product.weightKg),
-      priceMinUsd: toNumber(product.priceMinUsd),
-      priceMaxUsd: toNumber(product.priceMaxUsd),
-    };
+    return product;
   }
 
   async update(id: number, dto: UpdateProductDto) {
@@ -231,15 +205,6 @@ export class ProductsService {
     const data: any = { ...dto };
     if (dto.nameRu && !data.slug) {
       data.slug = slugify(dto.nameRu);
-    }
-    if (dto.weightKg) {
-      data.weightKg = new Decimal(dto.weightKg);
-    }
-    if (dto.priceMinUsd) {
-      data.priceMinUsd = new Decimal(dto.priceMinUsd);
-    }
-    if (dto.priceMaxUsd) {
-      data.priceMaxUsd = new Decimal(dto.priceMaxUsd);
     }
 
     const product = await this.prisma.product.update({
@@ -254,13 +219,7 @@ export class ProductsService {
       },
     });
 
-    // Convert Decimal fields to number
-    return {
-      ...product,
-      weightKg: toNumber(product.weightKg),
-      priceMinUsd: toNumber(product.priceMinUsd),
-      priceMaxUsd: toNumber(product.priceMaxUsd),
-    };
+    return product;
   }
 
   async remove(id: number) {

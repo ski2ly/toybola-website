@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { categoriesService } from '@/services'
+import { categoriesService, productsService } from '@/services'
 
 export const useCatalogStore = defineStore('catalog', {
   state: () => ({

@@ -12,17 +12,12 @@ const router = createRouter({
     {
       path: '/catalog',
       name: 'catalog',
-      component: () => import('@/pages/Catalog.vue')
-    },
-    {
-      path: '/catalog/:category',
-      name: 'category',
-      component: () => import('@/pages/CategoryPage.vue')
+      component: () => import('@/pages/catalog/Index.vue')
     },
     {
       path: '/product/:slug',
       name: 'product',
-      component: () => import('@/pages/ProductPage.vue')
+      component: () => import('@/pages/product/[slug].vue')
     },
     {
       path: '/about',
@@ -45,15 +40,35 @@ const router = createRouter({
       component: () => import('@/pages/admin/Login.vue')
     },
     {
-      path: '/terms',
-      name: 'terms',
-      component: () => import('@/pages/Terms.vue')
+      path: '/admin',
+      name: 'admin-dashboard',
+      component: () => import('@/pages/admin/Dashboard.vue'),
+      meta: { requiresAuth: true }
     },
     {
-      path: '/privacy',
-      name: 'privacy',
-      component: () => import('@/pages/Privacy.vue')
-    }
+      path: '/admin/products',
+      name: 'admin-products',
+      component: () => import('@/pages/admin/Products.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/categories',
+      name: 'admin-categories',
+      component: () => import('@/pages/admin/Categories.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/crm',
+      name: 'admin-crm',
+      component: () => import('@/pages/admin/CRM.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/admin/import',
+      name: 'admin-import',
+      component: () => import('@/pages/admin/ImportExcel.vue'),
+      meta: { requiresAuth: true }
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
