@@ -1,6 +1,4 @@
-fix: Hero text, stats values, icons
+fix: Hero text restored, stats labels correct
 
-- HeroSection: restored original text format
-- StatsSection: correct values (15+, 71M+, 1000+, 12)
-- About.vue: Sustainability icon brand colors
-- About.vue: Women support icon (shield instead of people)
+- HeroSection: "Игрушки от производителя" text restored
+- StatsSection: correct labels (лет на рынке, игрушек произведено, сотрудников, стран экспорта)
