@@ -199,7 +199,7 @@ onMounted(() => {
     </div>
 
     <!-- Контент -->
-    <Container class="relative z-10 py-32">
+    <div class="relative container mx-auto px-4 py-32">
       <div class="max-w-4xl animate-fade-in-down">
         <h1 class="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
           <span class="block">Игрушки от</span>
@@ -211,10 +211,9 @@ onMounted(() => {
           Крупнейший производитель игрушек в Центральной Азии.
         </p>
       </div>
-    </Container>
+    </div>
 
-    <!-- Wave Divider с анимацией -->
-    <div class="absolute bottom-0 left-0 right-0 overflow-hidden">
+    <div class="wave-divider">
       <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
         <path d="M0 0L60 8C120 16 240 32 360 40C480 48 600 48 720 44C840 40 960 32 1080 40C1200 48 1320 72 1380 84L1440 96V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z" fill="#f9fafb"/>
       </svg>
