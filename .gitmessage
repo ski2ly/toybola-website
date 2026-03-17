@@ -1,4 +1,4 @@
-fix: Hero text restored, stats labels correct
+fix: Hero text position/size, Stats icons
 
-- HeroSection: "Игрушки от производителя" text restored
-- StatsSection: correct labels (лет на рынке, игрушек произведено, сотрудников, стран экспорта)
+- HeroSection: text positioned like About page, same font size (text-5xl md:text-6xl)
+- StatsSection: added unique icons for each stat
