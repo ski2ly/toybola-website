@@ -269,14 +269,14 @@ const animateStats = () => {
               <span class="text-gray-800"> — лидер индустрии</span>
             </h2>
             
-            <div class="prose prose-lg max-w-none text-center">
-              <p class="text-gray-700 leading-relaxed mb-6 text-lg">
+            <div class="prose prose-lg max-w-none text-center mx-auto">
+              <p class="text-gray-700 leading-relaxed mb-6 text-lg text-center">
                 Компания <strong class="text-brand-red">Toybola</strong> была основана в 2010 году и за 15 лет работы стала лидером рынка игрушек в Центральной Азии, экспортируя продукцию в 12 стран мира.
               </p>
-              <p class="text-gray-700 leading-relaxed mb-6 text-lg">
+              <p class="text-gray-700 leading-relaxed mb-6 text-lg text-center">
                 Мы производим высококачественные игрушки, которые приносят радость миллионам детей по всему миру. Наша миссия — создавать безопасные, развивающие и увлекательные игрушки, которые помогают детям познавать мир.
               </p>
-              <p class="text-gray-700 leading-relaxed text-lg">
+              <p class="text-gray-700 leading-relaxed text-lg text-center">
                 Наш завод оснащён современным оборудованием, что позволяет нам контролировать качество на каждом этапе производства — от проектирования до упаковки готовой продукции.
               </p>
             </div>
