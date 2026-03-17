@@ -35,6 +35,16 @@ const router = createRouter({
       component: () => import('@/pages/Contacts.vue')
     },
     {
+      path: '/terms',
+      name: 'terms',
+      component: () => import('@/pages/Terms.vue')
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: () => import('@/pages/Privacy.vue')
+    },
+    {
       path: '/admin/login',
       name: 'admin-login',
       component: () => import('@/pages/admin/Login.vue')
@@ -69,6 +79,12 @@ const router = createRouter({
       component: () => import('@/pages/admin/ImportExcel.vue'),
       meta: { requiresAuth: true }
     },
+    // 404 route - должен быть последним
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/pages/NotFound.vue')
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
@@ -85,6 +101,9 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !isAuthenticated) {
     next('/admin/login')
+  } else if (to.name === 'admin-login' && isAuthenticated) {
+    // Если уже авторизован и пытается зайти на страницу логина
+    next('/admin')
   } else {
     next()
   }

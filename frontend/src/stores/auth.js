@@ -15,6 +15,36 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
+    /**
+     * Инициализация аутентификации при загрузке приложения
+     * Проверяет валидность токена
+     */
+    initAuth() {
+      const token = localStorage.getItem('admin_token')
+      if (token) {
+        try {
+          // Проверяем валидность JWT токена
+          const payload = JSON.parse(atob(token.split('.')[1]))
+          const now = Date.now()
+          
+          // Проверяем истечение срока действия (с запасом 30 секунд)
+          if (payload.exp && payload.exp * 1000 < now - 30000) {
+            console.warn('Токен истек, выполняется выход')
+            this.logout()
+          } else {
+            // Токен валиден, восстанавливаем пользователя
+            this.user = {
+              email: payload.email,
+              role: payload.role || 'admin'
+            }
+          }
+        } catch (error) {
+          console.warn('Невалидный токен, выполняется выход:', error.message)
+          this.logout()
+        }
+      }
+    },
+
     async login(email, password) {
       this.loading = true
       this.error = null
@@ -36,13 +66,13 @@ export const useAuthStore = defineStore('auth', {
       authService.logout()
       this.token = null
       this.user = null
+      localStorage.removeItem('admin_token')
     },
 
     checkAuth() {
       if (this.token && !this.user) {
-        // Токен есть, но пользователя нет - можно сделать запрос к /me
-        // Пока просто считаем что авторизован
-        return true
+        // Токен есть, но пользователя нет - пробуем восстановить
+        this.initAuth()
       }
       return !!this.token
     }

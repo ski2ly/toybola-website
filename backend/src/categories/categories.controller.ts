@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoriesService } from './categories.service';
-import { CategoryDto, CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Categories')
@@ -22,14 +22,14 @@ export class CategoriesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
-  async findAll(@Query('active') active?: string): Promise<CategoryDto[]> {
+  async findAll(@Query('active') active?: string) {
     const isActive = active === 'true' ? true : undefined;
     return this.categoriesService.findAll(isActive);
   }
 
   @Get(':slug')
   @ApiOperation({ summary: 'Get category by slug' })
-  async findOne(@Param('slug') slug: string): Promise<CategoryDto> {
+  async findOne(@Param('slug') slug: string) {
     return this.categoriesService.findOne(slug);
   }
 
@@ -43,7 +43,7 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new category' })
-  async create(@Body() dto: CreateCategoryDto): Promise<CategoryDto> {
+  async create(@Body() dto: CreateCategoryDto) {
     return this.categoriesService.create(dto);
   }
 
@@ -54,7 +54,7 @@ export class CategoriesController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCategoryDto,
-  ): Promise<CategoryDto> {
+  ) {
     return this.categoriesService.update(id, dto);
   }
 
@@ -62,7 +62,7 @@ export class CategoriesController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete category' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return this.categoriesService.remove(id);
   }
 }

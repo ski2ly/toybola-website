@@ -91,7 +91,7 @@ const navigateToCategory = (categorySlug) => {
           <nav class="text-sm text-gray-500">
             <router-link to="/" class="hover:text-brand-blue transition-colors">Главная</router-link>
             <span class="mx-2">/</span>
-            <router-link to="/catalog" class="hover:text-brand-blue transition-colors">Каталог</router-link>
+            <a href="https://ctgtb.uz" target="_blank" rel="noopener noreferrer" class="hover:text-brand-blue transition-colors">Каталог ↗</a>
             <span v-if="product.subcategory" class="mx-2">/</span>
             <router-link v-if="product.subcategory" :to="`/catalog/${product.subcategory.categorySlug}`" class="hover:text-brand-blue transition-colors">
               {{ product.subcategory.categoryName }}
@@ -334,14 +334,14 @@ const navigateToCategory = (categorySlug) => {
         <Container size="xl">
           <div class="flex items-center justify-between mb-8">
             <Heading size="2xl">Похожие товары</Heading>
-            <Button variant="ghost" @click="router.push('/catalog')">
+            <Button variant="ghost" @click="window.open('https://ctgtb.uz', '_blank')">
               Смотреть все
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
               </svg>
             </Button>
           </div>
-          
+
           <Grid columns="responsive" gap="lg">
             <ProductCard
               v-for="relatedProduct in relatedProducts"
@@ -359,8 +359,8 @@ const navigateToCategory = (categorySlug) => {
         <div class="text-7xl mb-6">😕</div>
         <Heading size="2xl" class="mb-4">Товар не найден</Heading>
         <p class="text-gray-600 mb-6">К сожалению, товар с таким адресом не существует</p>
-        <Button @click="router.push('/catalog')" variant="secondary">
-          Вернуться в каталог
+        <Button @click="window.open('https://ctgtb.uz', '_blank')" variant="secondary">
+          Вернуться в каталог ↗
         </Button>
       </div>
     </div>

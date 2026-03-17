@@ -1,246 +1,315 @@
-import { ApiProperty } from '@nestjs/swagger';
-
-export class ProductDto {
-  @ApiProperty()
-  id: number;
-
-  @ApiProperty()
-  sku: string;
-
-  @ApiProperty()
-  nameRu: string;
-
-  @ApiProperty()
-  nameEn: string;
-
-  @ApiProperty()
-  nameUz: string;
-
-  @ApiProperty()
-  slug: string;
-
-  @ApiProperty({ required: false })
-  descriptionRu?: string | null;
-
-  @ApiProperty({ required: false })
-  descriptionEn?: string | null;
-
-  @ApiProperty({ required: false })
-  descriptionUz?: string | null;
-
-  @ApiProperty({ required: false })
-  subcategoryId?: number | null;
-
-  @ApiProperty({ required: false })
-  dimensions?: string | null;
-
-  @ApiProperty({ required: false })
-  weightKg?: number | string | null;
-
-  @ApiProperty({ required: false })
-  recommendedAge?: string | null;
-
-  @ApiProperty({ required: false })
-  material?: string | null;
-
-  @ApiProperty({ required: false })
-  packagingType?: string | null;
-
-  @ApiProperty()
-  moq: number;
-
-  @ApiProperty({ required: false })
-  priceMinUsd?: number | null;
-
-  @ApiProperty({ required: false })
-  priceMaxUsd?: number | null;
-
-  @ApiProperty()
-  availability: string;
-
-  @ApiProperty()
-  isFeatured: boolean;
-
-  @ApiProperty()
-  isNew: boolean;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
-
-  @ApiProperty({ required: false })
-  subcategory?: any;
-
-  @ApiProperty({ required: false })
-  images?: any[];
-
-  @ApiProperty({ required: false })
-  attributes?: any[];
-}
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  Min,
+  IsBoolean,
+  IsEnum,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateProductDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'SKU (артикул)', example: 'TB-007' })
+  @IsString()
+  @IsNotEmpty()
   sku: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Название (русский)', example: 'RIFLE AK' })
+  @IsString()
+  @IsNotEmpty()
   nameRu: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Название (английский)', example: 'RIFLE AK' })
+  @IsString()
+  @IsNotEmpty()
   nameEn: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Название (узбекский)', example: 'RIFLE AK' })
+  @IsString()
+  @IsNotEmpty()
   nameUz: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Slug URL', example: 'rifle-ak' })
+  @IsOptional()
+  @IsString()
   slug?: string;
 
-  @ApiProperty({ required: false })
-  descriptionRu?: string | null;
+  @ApiPropertyOptional({ description: 'Описание (русский)' })
+  @IsOptional()
+  @IsString()
+  descriptionRu?: string;
 
-  @ApiProperty({ required: false })
-  descriptionEn?: string | null;
+  @ApiPropertyOptional({ description: 'Описание (английский)' })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
-  @ApiProperty({ required: false })
-  descriptionUz?: string | null;
+  @ApiPropertyOptional({ description: 'Описание (узбекский)' })
+  @IsOptional()
+  @IsString()
+  descriptionUz?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'ID подкатегории' })
+  @IsOptional()
+  @IsNumber()
   subcategoryId?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Габариты', example: '30x20x10 см' })
+  @IsOptional()
+  @IsString()
   dimensions?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Вес в кг', example: 0.8 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   weightKg?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Рекомендуемый возраст', example: '3+' })
+  @IsOptional()
+  @IsString()
   recommendedAge?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Материал', example: 'ABS-пластик' })
+  @IsOptional()
+  @IsString()
   material?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Тип упаковки', example: 'Коробка' })
+  @IsOptional()
+  @IsString()
   packagingType?: string;
 
-  @ApiProperty({ required: false })
-  moq?: number;
+  @ApiPropertyOptional({ description: 'Минимальный заказ', example: 100 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  moq?: number = 1;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Минимальная цена USD', example: 5.5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   priceMinUsd?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Максимальная цена USD', example: 7.5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   priceMaxUsd?: number;
 
-  @ApiProperty({ required: false })
-  availability?: string;
+  @ApiPropertyOptional({
+    description: 'Доступность',
+    enum: ['in_stock', 'out_of_stock', 'pre_order'],
+    example: 'in_stock',
+  })
+  @IsOptional()
+  @IsEnum(['in_stock', 'out_of_stock', 'pre_order'])
+  availability?: string = 'in_stock';
 
-  @ApiProperty({ required: false })
-  isFeatured?: boolean;
+  @ApiPropertyOptional({ description: 'Рекомендуемый товар', example: false })
+  @IsOptional()
+  @IsBoolean()
+  isFeatured?: boolean = false;
 
-  @ApiProperty({ required: false })
-  isNew?: boolean;
+  @ApiPropertyOptional({ description: 'Новый товар', example: true })
+  @IsOptional()
+  @IsBoolean()
+  isNew?: boolean = false;
 }
 
 export class UpdateProductDto {
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'SKU (артикул)', example: 'TB-007' })
+  @IsOptional()
+  @IsString()
+  sku?: string;
+
+  @ApiPropertyOptional({ description: 'Название (русский)', example: 'RIFLE AK' })
+  @IsOptional()
+  @IsString()
   nameRu?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Название (английский)', example: 'RIFLE AK' })
+  @IsOptional()
+  @IsString()
   nameEn?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Название (узбекский)', example: 'RIFLE AK' })
+  @IsOptional()
+  @IsString()
   nameUz?: string;
 
-  @ApiProperty({ required: false })
-  descriptionRu?: string | null;
+  @ApiPropertyOptional({ description: 'Slug URL', example: 'rifle-ak' })
+  @IsOptional()
+  @IsString()
+  slug?: string;
 
-  @ApiProperty({ required: false })
-  descriptionEn?: string | null;
+  @ApiPropertyOptional({ description: 'Описание (русский)' })
+  @IsOptional()
+  @IsString()
+  descriptionRu?: string;
 
-  @ApiProperty({ required: false })
-  descriptionUz?: string | null;
+  @ApiPropertyOptional({ description: 'Описание (английский)' })
+  @IsOptional()
+  @IsString()
+  descriptionEn?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Описание (узбекский)' })
+  @IsOptional()
+  @IsString()
+  descriptionUz?: string;
+
+  @ApiPropertyOptional({ description: 'ID подкатегории' })
+  @IsOptional()
+  @IsNumber()
   subcategoryId?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Габариты', example: '30x20x10 см' })
+  @IsOptional()
+  @IsString()
   dimensions?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Вес в кг', example: 0.8 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   weightKg?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Рекомендуемый возраст', example: '3+' })
+  @IsOptional()
+  @IsString()
   recommendedAge?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Материал', example: 'ABS-пластик' })
+  @IsOptional()
+  @IsString()
   material?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Тип упаковки', example: 'Коробка' })
+  @IsOptional()
+  @IsString()
   packagingType?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Минимальный заказ', example: 100 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
   moq?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Минимальная цена USD', example: 5.5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   priceMinUsd?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Максимальная цена USD', example: 7.5 })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   priceMaxUsd?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({
+    description: 'Доступность',
+    enum: ['in_stock', 'out_of_stock', 'pre_order'],
+    example: 'in_stock',
+  })
+  @IsOptional()
+  @IsEnum(['in_stock', 'out_of_stock', 'pre_order'])
   availability?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Рекомендуемый товар', example: false })
+  @IsOptional()
+  @IsBoolean()
   isFeatured?: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Новый товар', example: true })
+  @IsOptional()
+  @IsBoolean()
   isNew?: boolean;
-
-  @ApiProperty({ required: false })
-  slug?: string;
 }
 
 export class FilterProductsDto {
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'ID категории', example: 1 })
+  @IsOptional()
+  @IsNumber()
   category?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'ID подкатегории', example: 5 })
+  @IsOptional()
+  @IsNumber()
   subcategory?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Возраст', example: '3+' })
+  @IsOptional()
+  @IsString()
   age?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Материал', example: 'ABS-пластик' })
+  @IsOptional()
+  @IsString()
   material?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Минимальная цена', example: 5 })
+  @IsOptional()
+  @IsNumber()
   priceMin?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Максимальная цена', example: 50 })
+  @IsOptional()
+  @IsNumber()
   priceMax?: number;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({
+    description: 'Доступность',
+    enum: ['in_stock', 'out_of_stock', 'pre_order'],
+  })
+  @IsOptional()
+  @IsEnum(['in_stock', 'out_of_stock', 'pre_order'])
   availability?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Поиск по SKU или названию' })
+  @IsOptional()
+  @IsString()
   search?: string;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Рекомендуемые', example: 'true' })
+  @IsOptional()
+  @IsBoolean()
   featured?: boolean;
 
-  @ApiProperty({ required: false })
+  @ApiPropertyOptional({ description: 'Новые', example: 'true' })
+  @IsOptional()
+  @IsBoolean()
   new?: boolean;
 
-  @ApiProperty({ required: false })
-  page?: number;
+  @ApiPropertyOptional({ description: 'Страница', example: 1 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  page?: number = 1;
 
-  @ApiProperty({ required: false })
-  limit?: number;
+  @ApiPropertyOptional({ description: 'Лимит', example: 20 })
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  limit?: number = 20;
 
-  @ApiProperty({ required: false })
-  sortBy?: string;
+  @ApiPropertyOptional({
+    description: 'Сортировка',
+    enum: ['createdAt', 'nameRu', 'priceMinUsd', 'sku'],
+    example: 'createdAt',
+  })
+  @IsOptional()
+  @IsString()
+  sortBy?: string = 'createdAt';
 
-  @ApiProperty({ required: false })
-  sortOrder?: 'asc' | 'desc';
+  @ApiPropertyOptional({
+    description: 'Порядок',
+    enum: ['asc', 'desc'],
+    example: 'desc',
+  })
+  @IsOptional()
+  @IsString()
+  sortOrder?: 'asc' | 'desc' = 'desc';
 }

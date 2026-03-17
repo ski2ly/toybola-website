@@ -152,6 +152,15 @@ export class ImportService {
     const moq = normalizedData.moq ? String(normalizedData.moq) : undefined;
     const imageUrl = normalizedData.image_url ? String(normalizedData.image_url) : undefined;
 
+    // Validate price is a valid number
+    let priceNum: number | undefined;
+    if (price) {
+      priceNum = parseFloat(price);
+      if (isNaN(priceNum) || priceNum < 0) {
+        throw new Error(`Invalid price value: ${price} (строка ${rowNumber})`);
+      }
+    }
+
     // Find or create category
     let subcategoryId: number | undefined;
     if (categoryName && options.createCategories) {
@@ -179,8 +188,8 @@ export class ImportService {
           recommendedAge: ageGroup ?? existingProduct.recommendedAge,
           material: material ?? existingProduct.material,
           moq: moq ? Number(moq) : existingProduct.moq,
-          priceMinUsd: price ? Number(price) : existingProduct.priceMinUsd,
-          priceMaxUsd: price ? Number(price) : existingProduct.priceMaxUsd,
+          priceMinUsd: priceNum !== undefined ? priceNum : existingProduct.priceMinUsd,
+          priceMaxUsd: priceNum !== undefined ? priceNum : existingProduct.priceMaxUsd,
         },
       });
       results.updated++;
@@ -199,8 +208,8 @@ export class ImportService {
           recommendedAge: ageGroup || null,
           material: material || null,
           moq: moq ? Number(moq) : 1,
-          priceMinUsd: price ? Number(price) : null,
-          priceMaxUsd: price ? Number(price) : null,
+          priceMinUsd: priceNum || null,
+          priceMaxUsd: priceNum || null,
           availability: 'in_stock',
         },
       });
@@ -211,13 +220,20 @@ export class ImportService {
     if (imageUrl) {
       const product = await this.prisma.product.findUnique({ where: { sku } });
       if (product) {
-        await this.prisma.productImage.create({
-          data: {
-            productId: product.id,
-            imageUrl: imageUrl.toString(),
-            isPrimary: true,
-          },
+        // Check if image already exists to prevent duplicates
+        const existingImage = await this.prisma.productImage.findFirst({
+          where: { productId: product.id, imageUrl: imageUrl.toString() },
         });
+        
+        if (!existingImage) {
+          await this.prisma.productImage.create({
+            data: {
+              productId: product.id,
+              imageUrl: imageUrl.toString(),
+              isPrimary: true,
+            },
+          });
+        }
       }
     }
   }

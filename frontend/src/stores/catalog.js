@@ -20,7 +20,7 @@ export const useCatalogStore = defineStore('catalog', {
     },
     pagination: {
       page: 1,
-      limit: 50,
+      limit: 20,
       total: 0,
       totalPages: 0
     },
@@ -38,9 +38,10 @@ export const useCatalogStore = defineStore('catalog', {
       this.loading = true
       try {
         const response = await categoriesService.getAll()
-        this.categories = response.data
+        this.categories = response.data || []
       } catch (error) {
-        this.error = error.message
+        console.error('Ошибка загрузки категорий:', error)
+        this.error = error.response?.data?.message || 'Ошибка загрузки категорий'
       } finally {
         this.loading = false
       }
@@ -49,14 +50,17 @@ export const useCatalogStore = defineStore('catalog', {
     async fetchSubcategories(categorySlug) {
       try {
         const response = await categoriesService.getSubcategories(categorySlug)
-        this.subcategories = response.data
+        this.subcategories = response.data || []
       } catch (error) {
-        this.error = error.message
+        console.error('Ошибка загрузки подкатегорий:', error)
+        this.error = error.response?.data?.message || 'Ошибка загрузки подкатегорий'
       }
     },
 
     async fetchProducts(params = {}) {
       this.loading = true
+      this.error = null
+      
       try {
         const queryParams = {
           ...this.filters,
@@ -73,15 +77,22 @@ export const useCatalogStore = defineStore('catalog', {
         })
 
         const response = await productsService.getAll(queryParams)
-        this.products = response.data.data
+        
+        // Безопасное извлечение данных
+        const data = response.data?.data || response.data || []
+        const meta = response.data?.meta || {}
+
+        this.products = data
         this.pagination = {
-          page: response.data.meta.page,
-          limit: response.data.meta.perPage,
-          total: response.data.meta.total,
-          totalPages: response.data.meta.totalPages
+          page: meta.page || this.pagination.page,
+          limit: meta.perPage || this.pagination.limit,
+          total: meta.total || 0,
+          totalPages: meta.totalPages || Math.ceil((meta.total || 0) / (meta.perPage || this.pagination.limit))
         }
       } catch (error) {
-        this.error = error.message
+        console.error('Ошибка загрузки продуктов:', error)
+        this.error = error.response?.data?.message || 'Ошибка загрузки товаров'
+        this.products = []
       } finally {
         this.loading = false
       }
@@ -90,18 +101,18 @@ export const useCatalogStore = defineStore('catalog', {
     async fetchFeatured(limit = 8) {
       try {
         const response = await productsService.getFeatured(limit)
-        this.featuredProducts = response.data.data || response.data
+        this.featuredProducts = response.data?.data || response.data || []
       } catch (error) {
-        this.error = error.message
+        console.error('Ошибка загрузки рекомендуемых товаров:', error)
       }
     },
 
     async fetchNew(limit = 8) {
       try {
         const response = await productsService.getNew(limit)
-        this.newProducts = response.data.data || response.data
+        this.newProducts = response.data?.data || response.data || []
       } catch (error) {
-        this.error = error.message
+        console.error('Ошибка загрузки новых товаров:', error)
       }
     },
 

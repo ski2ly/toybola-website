@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
 import { slugify } from '../utils/slugify';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -20,12 +21,12 @@ export class ProductsService {
       featured,
       new: isNew,
       page = 1,
-      limit = 50,
+      limit = 20,
       sortBy = 'createdAt',
       sortOrder = 'desc',
     } = filters;
 
-    const where: any = {};
+    const where: Prisma.ProductWhereInput = {};
 
     // Category filter
     if (category) {
@@ -75,12 +76,14 @@ export class ProductsService {
       where.isNew = isNew;
     }
 
-    // Search filter (SKU, name)
+    // Search filter (SKU, name) - SQLite doesn't support mode: 'insensitive'
     if (search) {
+      // For SQLite, use case-insensitive search via LOWER
+      const searchLower = search.toLowerCase();
       where.OR = [
-        { sku: { contains: search, mode: 'insensitive' } },
-        { nameRu: { contains: search, mode: 'insensitive' } },
-        { nameEn: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: searchLower } },
+        { nameRu: { contains: searchLower } },
+        { nameEn: { contains: searchLower } },
       ];
     }
 

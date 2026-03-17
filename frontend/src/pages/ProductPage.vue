@@ -45,7 +45,7 @@ const priceRange = computed(() => {
         <div class="text-sm text-gray-500 mb-6">
           <router-link to="/" class="hover:text-brand-blue">Главная</router-link>
           <span class="mx-2">/</span>
-          <router-link to="/catalog" class="hover:text-brand-blue">Каталог</router-link>
+          <a href="https://ctgtb.uz" target="_blank" rel="noopener noreferrer" class="hover:text-brand-blue">Каталог ↗</a>
           <span class="mx-2">/</span>
           <span class="text-gray-900">{{ product.nameRu }}</span>
         </div>
@@ -172,9 +172,9 @@ const priceRange = computed(() => {
       <div class="text-center">
         <div class="text-6xl mb-4">😕</div>
         <h1 class="text-2xl font-bold mb-2">Товар не найден</h1>
-        <router-link to="/catalog" class="text-brand-blue hover:underline">
-          Вернуться в каталог
-        </router-link>
+        <a href="https://ctgtb.uz" target="_blank" rel="noopener noreferrer" class="text-brand-blue hover:underline">
+          Вернуться в каталог ↗
+        </a>
       </div>
     </div>
   </DefaultLayout>

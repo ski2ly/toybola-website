@@ -8,15 +8,11 @@ import {
   Param,
   Query,
   ParseIntPipe,
-  ParseFilePipeBuilder,
-  UploadedFile,
-  UseInterceptors,
   UseGuards,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
-import { ProductDto, CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
+import { CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Products')
@@ -32,13 +28,13 @@ export class ProductsController {
 
   @Get('sku/:sku')
   @ApiOperation({ summary: 'Get product by SKU' })
-  async findBySku(@Param('sku') sku: string): Promise<ProductDto> {
+  async findBySku(@Param('sku') sku: string) {
     return this.productsService.findBySku(sku);
   }
 
   @Get(':slug')
   @ApiOperation({ summary: 'Get product by slug' })
-  async findOne(@Param('slug') slug: string): Promise<ProductDto> {
+  async findOne(@Param('slug') slug: string) {
     return this.productsService.findOne(slug);
   }
 
@@ -46,7 +42,7 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new product' })
-  async create(@Body() dto: CreateProductDto): Promise<ProductDto> {
+  async create(@Body() dto: CreateProductDto) {
     return this.productsService.create(dto);
   }
 
@@ -57,7 +53,7 @@ export class ProductsController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateProductDto,
-  ): Promise<ProductDto> {
+  ) {
     return this.productsService.update(id, dto);
   }
 
@@ -65,7 +61,7 @@ export class ProductsController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete product' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
   }
 }

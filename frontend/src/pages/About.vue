@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { gsap } from 'gsap'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 const currentSlide = ref(0)
@@ -16,18 +17,18 @@ const translateX = ref(0)
 const values = [
   {
     title: 'Поддержка женщин',
-    description: 'Наша цель — снизить безработицу среди женщин и улучшить их положение в обществе, создавая больше возможностей для роста и равных возможностей.',
-    image: '/images/values/women-support.jpg'
+    icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+    description: 'Наша цель — снизить безработицу среди женщин и улучшить их положение в обществе, создавая больше возможностей для роста и равных возможностей.'
   },
   {
     title: 'Инклюзивность',
-    description: 'В Toybola мы гордимся тем, что в наших фабриках работает 20 талантливых людей с ограниченными возможностями. Их преданность делу и профессионализм — важная часть нашей приверженности инклюзивности и предоставления равных возможностей для всех.',
-    image: '/images/values/inclusivity.jpg'
+    icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+    description: 'В Toybola мы гордимся тем, что в наших фабриках работает 20 талантливых людей с ограниченными возможностями. Их преданность делу и профессионализм — важная часть нашей приверженности инклюзивности и предоставления равных возможностей для всех.'
   },
   {
     title: 'Благотворительность',
-    description: 'Toybola с гордостью спонсирует и активно поддерживает Детскую больницу по лечению лейкемии, предоставляя жизненно важные ресурсы для молодых пациентов. Кроме того, мы оказываем помощь малообеспеченным детским садикам, помогая создать лучшие образовательные возможности и условия для детей из семей с низким доходом.',
-    image: '/images/values/charity.jpg'
+    icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
+    description: 'Toybola с гордостью спонсирует и активно поддерживает Детскую больницу по лечению лейкемии, предоставляя жизненно важные ресурсы для молодых пациентов. Кроме того, мы оказываем помощь малообеспеченным детским садикам, помогая создать лучшие образовательные возможности и условия для детей из семей с низким доходом.'
   }
 ]
 
@@ -61,26 +62,26 @@ const handleDragStart = (e) => {
 
 const handleDragMove = (e) => {
   if (!isDragging.value || !slidesTrack.value || !sliderContainer.value) return
-  
+
   e.preventDefault()
   currentX.value = e.type.includes('touch') ? e.touches[0].clientX : e.clientX
   translateX.value = currentX.value - startX.value
-  
+
   const slideWidth = sliderContainer.value.offsetWidth
   const baseTranslate = -currentSlide.value * 100
   const percentTranslate = (translateX.value / slideWidth) * 100
-  
+
   slidesTrack.value.style.transform = `translateX(${baseTranslate + percentTranslate}%)`
 }
 
 const handleDragEnd = () => {
   if (!isDragging.value || !sliderContainer.value) return
-  
+
   isDragging.value = false
-  
+
   const slideWidth = sliderContainer.value.offsetWidth
   const threshold = slideWidth * 0.15 // 15% threshold
-  
+
   if (Math.abs(translateX.value) > threshold) {
     if (translateX.value > 0) {
       prevSlide()
@@ -100,6 +101,23 @@ const goToSlide = (index) => {
 
 onMounted(() => {
   startTimer()
+
+  // Setup stats animation observer
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && !statsAnimated.value) {
+          statsAnimated.value = true
+          animateStats()
+        }
+      })
+    },
+    { threshold: 0.3 }
+  )
+
+  if (statsSectionRef.value) {
+    observer.observe(statsSectionRef.value)
+  }
 })
 
 onUnmounted(() => {
@@ -179,12 +197,30 @@ const closeCertificate = () => {
   selectedCertificate.value = null
 }
 
-const stats = [
-  { value: '15+', label: 'лет на рынке' },
-  { value: '71M+', label: 'игрушек произведено' },
-  { value: '1000+', label: 'сотрудников' },
-  { value: '12', label: 'стран экспорта' },
-]
+// Stats with animation
+const stats = ref([
+  { value: '0', endValue: 15, suffix: '+', label: 'лет на рынке' },
+  { value: '0', endValue: 71, suffix: 'M+', label: 'игрушек произведено' },
+  { value: '0', endValue: 1000, suffix: '+', label: 'сотрудников' },
+  { value: '0', endValue: 12, suffix: '', label: 'стран экспорта' },
+])
+
+const statsSectionRef = ref(null)
+const statsAnimated = ref(false)
+
+const animateStats = () => {
+  stats.value.forEach((stat, index) => {
+    gsap.to(stat, {
+      value: stat.endValue,
+      duration: 2,
+      ease: 'power2.out',
+      delay: index * 0.15,
+      onUpdate: () => {
+        stat.value = Math.floor(stat.value)
+      }
+    })
+  })
+}
 </script>
 
 <template>
@@ -215,21 +251,32 @@ const stats = [
     </section>
 
     <!-- О компании -->
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50/30">
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
           <div class="text-center mb-12">
-            <h2 class="text-4xl font-bold mb-6 text-gray-900">
-              <span class="text-gradient">Toybola</span> — лидер индустрии
+            <!-- Иконка над заголовком -->
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-brand-red via-red-500 to-brand-blue rounded-2xl mb-6 shadow-xl">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            
+            <h2 class="text-4xl md:text-5xl font-black mb-6">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-red-500 to-brand-blue">
+                Toybola
+              </span>
+              <span class="text-gray-800"> — лидер индустрии</span>
             </h2>
-            <div class="prose prose-lg max-w-none text-center">
-              <p class="text-gray-700 leading-relaxed mb-6">
-                Компания <strong>Toybola</strong> была основана в 2010 году и за 15 лет работы стала лидером рынка игрушек в Центральной Азии, экспортируя продукцию в 12 стран мира.
+            
+            <div class="prose prose-lg max-w-none">
+              <p class="text-gray-700 leading-relaxed mb-6 text-lg">
+                Компания <strong class="text-brand-red">Toybola</strong> была основана в 2010 году и за 15 лет работы стала лидером рынка игрушек в Центральной Азии, экспортируя продукцию в 12 стран мира.
               </p>
-              <p class="text-gray-700 leading-relaxed mb-6">
+              <p class="text-gray-700 leading-relaxed mb-6 text-lg">
                 Мы производим высококачественные игрушки, которые приносят радость миллионам детей по всему миру. Наша миссия — создавать безопасные, развивающие и увлекательные игрушки, которые помогают детям познавать мир.
               </p>
-              <p class="text-gray-700 leading-relaxed">
+              <p class="text-gray-700 leading-relaxed text-lg">
                 Наш завод оснащён современным оборудованием, что позволяет нам контролировать качество на каждом этапе производства — от проектирования до упаковки готовой продукции.
               </p>
             </div>
@@ -239,16 +286,18 @@ const stats = [
     </section>
 
     <!-- Статистика -->
-    <section class="py-20 bg-gray-50">
+    <section ref="statsSectionRef" class="py-20 bg-gray-50">
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-          <div 
-            v-for="(stat, index) in stats" 
+          <div
+            v-for="(stat, index) in stats"
             :key="index"
             class="text-center reveal"
             :style="{ animationDelay: `${index * 0.1}s` }"
           >
-            <div class="text-5xl md:text-6xl font-bold text-gradient mb-4">{{ stat.value }}</div>
+            <div class="text-5xl md:text-6xl font-bold text-gradient mb-4">
+              {{ stat.value }}{{ stat.suffix }}
+            </div>
             <div class="text-gray-600 text-lg">{{ stat.label }}</div>
           </div>
         </div>
@@ -273,12 +322,12 @@ const stats = [
           >
             <h3 class="text-2xl font-bold text-gray-900 mb-6">{{ region.region }}</h3>
             <ul class="space-y-3">
-              <li 
-                v-for="country in region.countries" 
+              <li
+                v-for="country in region.countries"
                 :key="country"
                 class="flex items-center text-gray-700"
               >
-                <span class="w-2 h-2 bg-[#77CED8] rounded-full mr-3"></span>
+                <span class="w-2 h-2 bg-gradient-to-r from-brand-red to-brand-blue rounded-full mr-3"></span>
                 {{ country }}
               </li>
             </ul>
@@ -292,7 +341,7 @@ const stats = [
       <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
           <div class="text-center mb-12">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#77CED8] to-[#5FB8C2] rounded-full mb-6">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-[#77CED8] to-[#5FB8C2] rounded-full mb-6 shadow-lg">
               <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -307,10 +356,20 @@ const stats = [
     </section>
 
     <!-- Наши ценности (слайдер) -->
-    <section class="py-20 bg-gray-50">
+    <section class="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50/30">
       <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-          <h2 class="text-4xl font-bold mb-4">НАШИ ЦЕННОСТИ</h2>
+          <!-- Иконка над заголовком -->
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand-red via-red-500 to-brand-blue rounded-2xl mb-4 shadow-lg">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-black">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-red-500 to-brand-blue">
+              НАШИ ЦЕННОСТИ
+            </span>
+          </h2>
         </div>
 
         <!-- Slider Container - Full Width -->
@@ -340,15 +399,18 @@ const stats = [
                 :key="index"
                 class="w-full flex-shrink-0 px-2 md:px-4"
               >
-                <div class="bg-white rounded-2xl shadow-elegant overflow-hidden h-full">
+                <div class="bg-white rounded-3xl overflow-hidden h-full shadow-2xl transition-all duration-300 hover:shadow-3xl" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);">
                   <div class="grid grid-cols-1 lg:grid-cols-2 h-full">
-                    <!-- Image Side -->
-                    <div class="h-64 lg:h-auto bg-gradient-to-br from-[#77CED8] to-[#5FB8C2] flex items-center justify-center">
-                      <div class="text-center text-white p-8">
-                        <svg class="w-24 h-24 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    <!-- Icon Side -->
+                    <div class="h-64 lg:h-auto bg-gradient-to-br from-brand-red via-red-500 to-brand-blue flex items-center justify-center relative overflow-hidden">
+                      <!-- Декоративные круги -->
+                      <div class="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl"></div>
+                      <div class="absolute bottom-10 right-10 w-24 h-24 bg-white/10 rounded-full blur-lg"></div>
+
+                      <div class="text-center text-white p-8 relative z-10">
+                        <svg class="w-32 h-32 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" :d="value.icon" />
                         </svg>
-                        <p class="text-sm opacity-75">Изображение</p>
                       </div>
                     </div>
 
@@ -356,7 +418,7 @@ const stats = [
                     <div class="p-6 lg:p-12 flex flex-col justify-center">
                       <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 lg:mb-6">{{ value.title }}</h3>
                       <p class="text-gray-700 leading-relaxed mb-6 lg:mb-8 text-sm lg:text-base">{{ value.description }}</p>
-                      <button @click="openJobModal" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-[#77CED8] to-[#5FB8C2] text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                      <button @click="openJobModal" class="inline-flex items-center justify-center px-6 lg:px-8 py-3 lg:py-4 bg-gradient-to-r from-brand-red via-red-500 to-brand-blue text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:shadow-brand-red/40">
                         Подать заявку на работу
                       </button>
                     </div>
@@ -374,7 +436,7 @@ const stats = [
               @click="goToSlide(index)"
               :class="[
                 'w-3 h-3 rounded-full transition-all duration-300',
-                currentSlide === index ? 'bg-[#77CED8] w-8' : 'bg-gray-300 hover:bg-gray-400'
+                currentSlide === index ? 'bg-gradient-to-r from-brand-red to-brand-blue w-10' : 'bg-gray-300 hover:bg-gray-400'
               ]"
               :aria-label="`Слайд ${index + 1}`"
             ></button>

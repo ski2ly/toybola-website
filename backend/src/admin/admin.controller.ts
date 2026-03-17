@@ -9,10 +9,13 @@ import {
   ParseIntPipe,
   Query,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateProductDto, UpdateProductDto } from '../products/dto/product.dto';
+import { CreateCategoryDto, UpdateCategoryDto } from '../categories/dto/category.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -30,8 +33,8 @@ export class AdminController {
   @Get('products')
   @ApiOperation({ summary: 'Get all products (admin)' })
   async getProducts(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 50,
+    @Query('page', new ParseIntPipe({ optional: true })) page: number = 1,
+    @Query('limit', new ParseIntPipe({ optional: true })) limit: number = 50,
     @Query('search') search?: string,
   ) {
     return this.adminService.getProducts({ page, limit, search });
@@ -45,13 +48,16 @@ export class AdminController {
 
   @Post('products')
   @ApiOperation({ summary: 'Create product (admin)' })
-  async createProduct(@Body() dto: any) {
+  async createProduct(@Body(new ValidationPipe({ transform: true })) dto: CreateProductDto) {
     return this.adminService.createProduct(dto);
   }
 
   @Put('products/:id')
   @ApiOperation({ summary: 'Update product (admin)' })
-  async updateProduct(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
+  async updateProduct(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe({ transform: true, skipMissingProperties: true })) dto: UpdateProductDto,
+  ) {
     return this.adminService.updateProduct(id, dto);
   }
 
@@ -69,13 +75,16 @@ export class AdminController {
 
   @Post('categories')
   @ApiOperation({ summary: 'Create category (admin)' })
-  async createCategory(@Body() dto: any) {
+  async createCategory(@Body(new ValidationPipe({ transform: true })) dto: CreateCategoryDto) {
     return this.adminService.createCategory(dto);
   }
 
   @Put('categories/:id')
   @ApiOperation({ summary: 'Update category (admin)' })
-  async updateCategory(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
+  async updateCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe({ transform: true, skipMissingProperties: true })) dto: UpdateCategoryDto,
+  ) {
     return this.adminService.updateCategory(id, dto);
   }
 
