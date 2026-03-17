@@ -200,102 +200,28 @@ onMounted(() => {
 
     <!-- Контент -->
     <Container class="relative z-10 py-32">
-      <div class="max-w-5xl">
-        <!-- Заголовок с эффектом появления -->
-        <h1 class="hero-title text-5xl md:text-7xl lg:text-8xl font-black mb-8 text-white leading-tight drop-shadow-2xl">
-          <span class="block overflow-hidden">
-            <span class="inline-block hero-text-reveal">Игрушки от</span>
-          </span>
-          <span class="block overflow-hidden mt-2">
-            <span class="inline-block hero-text-reveal text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-200" style="animation-delay: 0.2s;">
-              производителя
-            </span>
-          </span>
+      <div class="max-w-4xl">
+        <!-- Заголовок -->
+        <h1 class="text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg">
+          О компании
         </h1>
-
-        <!-- Подзаголовок -->
-        <p class="hero-subtitle text-xl md:text-3xl mb-12 text-blue-100 leading-relaxed drop-shadow-lg max-w-3xl">
-          <span class="block overflow-hidden">
-            <span class="inline-block blur-reveal">
-              Крупнейший производитель игрушек в Центральной Азии.
-            </span>
-          </span>
-          <span class="block overflow-hidden mt-2">
-            <span class="inline-block blur-reveal text-blue-200 font-semibold" style="transition-delay: 0.3s;">
-              Экспорт в 12 стран мира.
-            </span>
-          </span>
+        <p class="text-xl text-blue-100 drop-shadow-md">
+          Крупнейший производитель игрушек в Центральной Азии
         </p>
-
-        <!-- Кнопки -->
-        <div class="hero-buttons flex flex-col sm:flex-row gap-6">
-          <Button 
-            @click="navigateToCatalog" 
-            variant="primary" 
-            size="xl"
-            class="ripple group relative overflow-hidden bg-gradient-to-r from-brand-red to-red-600 hover:from-red-600 hover:to-brand-red border-0 shadow-2xl hover:shadow-brand-red/50 transition-all duration-500"
-          >
-            <span class="flex items-center gap-3 text-lg font-semibold">
-              <span>Смотреть каталог</span>
-              <svg class="w-6 h-6 transform group-hover:translate-x-3 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-              </svg>
-            </span>
-            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
-          </Button>
-
-          <Button 
-            @click="navigateToAbout" 
-            variant="outline" 
-            size="xl" 
-            class="bg-white/10 backdrop-blur-md border-2 border-white/40 text-white hover:bg-white/25 hover:border-white/60 hover:scale-105 transition-all duration-300 shadow-xl"
-          >
-            <span class="flex items-center gap-2 text-lg font-medium">
-              <span>О компании</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </span>
-          </Button>
-        </div>
-
-        <!-- Стрелка вниз -->
-        <div
-          ref="scrollArrow"
-          class="scroll-arrow absolute bottom-10 left-1/2 transform -translate-x-1/2 cursor-pointer group"
-          title="Прокрутить вниз"
-        >
-          <svg
-            class="w-8 h-8 text-white/60 group-hover:text-white transition-colors duration-300"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 14l-7 7m0 0l-7-7m7 7V3"
-            />
-          </svg>
-          <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 text-white/40 text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-            Листайте вниз
-          </div>
-        </div>
       </div>
     </Container>
 
     <!-- Wave Divider с анимацией -->
     <div class="absolute bottom-0 left-0 right-0 overflow-hidden">
       <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
-        <path 
-          d="M0 0L60 16C120 32 240 64 360 80C480 96 600 96 720 88C840 80 960 64 1080 72C1200 80 1320 112 1380 128L1440 144V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z" 
+        <path
+          d="M0 0L60 16C120 32 240 64 360 80C480 96 600 96 720 88C840 80 960 64 1080 72C1200 80 1320 112 1380 128L1440 144V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z"
           fill="#f9fafb"
           class="animate-pulse-slow"
         >
-          <animate 
-            attributeName="d" 
-            dur="10s" 
+          <animate
+            attributeName="d"
+            dur="10s"
             repeatCount="indefinite"
             values="
               M0 0L60 16C120 32 240 64 360 80C480 96 600 96 720 88C840 80 960 64 1080 72C1200 80 1320 112 1380 128L1440 144V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0V0Z;
