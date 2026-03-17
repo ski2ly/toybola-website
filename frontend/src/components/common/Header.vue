@@ -86,12 +86,12 @@ const handleSearch = () => {
 const handleLogoClick = () => {
   // Secret admin access logic
   logoClickCount.value++
-  
+
   // Clear existing timer
   if (logoClickTimer.value) {
     clearTimeout(logoClickTimer.value)
   }
-  
+
   // Check if 5 clicks reached
   if (logoClickCount.value >= 5) {
     // Navigate to admin
@@ -105,14 +105,6 @@ const handleLogoClick = () => {
     // Reset counter after 2 seconds
     logoClickTimer.value = setTimeout(resetLogoClicks, 2000)
   }
-  
-  // Navigate home after delay if not admin access
-  setTimeout(() => {
-    if (logoClickCount.value < 5) {
-      router.push('/')
-      resetLogoClicks()
-    }
-  }, 300)
 }
 
 const navigateTo = (path) => {
