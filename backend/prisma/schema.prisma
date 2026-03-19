@@ -188,3 +188,30 @@ model ContactFormSubmission {
   @@index([createdAt])
   @@map("contact_form_submissions")
 }
+
+// ============================================
+// БЛОКИ СТРАНИЦ (Page Builder)
+// ============================================
+model PageBlock {
+  id          Int      @id @default(autoincrement())
+  page        String   // "home", "about", "catalog", etc.
+  blockType   String   // "hero", "stats", "partners", "factory", "export", "contact_form", "text", "image", "products"
+  title       String   // Название блока для админки
+  isEnabled   Boolean  @default(true)
+  order       Int      @default(0)
+  
+  // Контент блока (JSON строка зависит от blockType)
+  content     String     
+  
+  // Настройки отображения
+  bgColor     String   @default("white") // "white", "gray", "gradient"
+  paddingTop  String   @default("lg")    // "sm", "md", "lg", "xl"
+  paddingBottom String @default("lg")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([page, order])
+  @@index([page, isEnabled])
+  @@map("page_blocks")
+}

@@ -122,7 +122,7 @@ const navigateTo = (path) => {
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Телефон <span class="text-red-500">*</span></label>
-                    <input v-model="form.phone" type="tel" required placeholder="+998 (__) ___-__-__" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"/>
+                    <input v-model="form.phone" type="tel" required placeholder="Ваш номер телефона" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"/>
                   </div>
                 </div>
                 <div>

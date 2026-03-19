@@ -7,6 +7,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { ImportModule } from './import/import.module';
 import { ContactFormModule } from './contact-form/contact-form.module';
+// import { PageBlocksModule } from './page-blocks/page-blocks.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ContactFormModule } from './contact-form/contact-form.module';
     CategoriesModule,
     ImportModule,
     ContactFormModule,
+    // PageBlocksModule, // TODO: Fix route registration
   ],
 })
 export class AppModule {}

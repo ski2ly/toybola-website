@@ -102,22 +102,10 @@ const goToSlide = (index) => {
 onMounted(() => {
   startTimer()
 
-  // Setup stats animation observer
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !statsAnimated.value) {
-          statsAnimated.value = true
-          animateStats()
-        }
-      })
-    },
-    { threshold: 0.3 }
-  )
-
-  if (statsSectionRef.value) {
-    observer.observe(statsSectionRef.value)
-  }
+  // Запуск анимации статистики с небольшой задержкой
+  setTimeout(() => {
+    animateStats()
+  }, 300)
 })
 
 onUnmounted(() => {
@@ -199,26 +187,47 @@ const closeCertificate = () => {
 
 // Stats with animation
 const stats = ref([
-  { value: '0', endValue: 15, suffix: '+', label: 'лет на рынке' },
-  { value: '0', endValue: 71, suffix: 'M+', label: 'игрушек произведено' },
-  { value: '0', endValue: 1000, suffix: '+', label: 'сотрудников' },
-  { value: '0', endValue: 12, suffix: '', label: 'стран экспорта' },
+  { endValue: 15, suffix: '+', label: 'лет на рынке' },
+  { endValue: 71, suffix: 'M+', label: 'игрушек произведено' },
+  { endValue: 1000, suffix: '+', label: 'сотрудников' },
+  { endValue: 12, suffix: '', label: 'стран экспорта' },
 ])
 
+const animatedValues = ref([0, 0, 0, 0])
 const statsSectionRef = ref(null)
 const statsAnimated = ref(false)
 
+// Функция плавной анимации (easing)
+const easeOutQuad = (t) => t * (2 - t)
+
 const animateStats = () => {
   stats.value.forEach((stat, index) => {
-    gsap.to(stat, {
-      value: stat.endValue,
-      duration: 2,
-      ease: 'power2.out',
-      delay: index * 0.15,
-      onUpdate: () => {
-        stat.value = Math.floor(stat.value)
+    const duration = 1200 // 1.2 секунды
+    const delay = 100 + index * 150
+    const startTime = performance.now() + delay
+
+    const update = (currentTime) => {
+      if (currentTime < startTime) {
+        requestAnimationFrame(update)
+        return
       }
-    })
+
+      const elapsed = currentTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const easedProgress = easeOutQuad(progress)
+      const currentValue = Math.floor(stat.endValue * easedProgress)
+
+      // Создаем новый массив для триггера реактивности
+      const newValues = [...animatedValues.value]
+      newValues[index] = currentValue
+      animatedValues.value = newValues
+
+      if (progress < 1) {
+        requestAnimationFrame(update)
+      }
+    }
+
+    requestAnimationFrame(update)
   })
 }
 </script>
@@ -286,19 +295,34 @@ const animateStats = () => {
     </section>
 
     <!-- Статистика -->
-    <section ref="statsSectionRef" class="py-20 bg-gray-50">
+    <section ref="statsSectionRef" class="py-20 bg-gradient-to-br from-white via-gray-50 to-blue-50/50 relative overflow-hidden">
       <div class="container mx-auto px-4">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div
             v-for="(stat, index) in stats"
             :key="index"
-            class="text-center reveal"
+            class="text-center reveal group"
             :style="{ animationDelay: `${index * 0.1}s` }"
           >
-            <div class="text-5xl md:text-6xl font-bold text-gradient mb-4">
-              {{ stat.value }}{{ stat.suffix }}
+            <!-- Иконка в круге -->
+            <div class="relative inline-block mb-6">
+              <div class="relative w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300" style="background: linear-gradient(135deg, #E31E24 0%, #FF6B6B 50%, #0072CE 100%);">
+                <svg class="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path v-if="index === 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 4h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <path v-if="index === 1" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  <path v-if="index === 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path v-if="index === 3" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
             </div>
-            <div class="text-gray-600 text-lg">{{ stat.label }}</div>
+            <!-- Число -->
+            <div class="text-5xl md:text-6xl font-black mb-3">
+              <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-red-500 to-brand-blue">
+                {{ animatedValues[index] }}{{ stat.suffix }}
+              </span>
+            </div>
+            <!-- Подпись -->
+            <div class="text-gray-600 text-base font-medium">{{ stat.label }}</div>
           </div>
         </div>
       </div>

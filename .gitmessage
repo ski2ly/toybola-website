@@ -1,3 +1,0 @@
-fix: Stats values hardcoded
-
-- StatsSection: values set directly (15, 71, 1000, 12) instead of animating from 0

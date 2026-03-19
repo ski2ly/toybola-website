@@ -287,6 +287,131 @@ async function main() {
 
   console.log('✅ Products created');
 
+  // ============================================
+  // Создаем блоки страниц (Page Builder)
+  // ============================================
+
+  // Главная страница (home)
+  await prisma.pageBlock.createMany({
+    data: [
+      {
+        page: 'home',
+        blockType: 'hero',
+        title: 'Hero секция',
+        isEnabled: true,
+        order: 1,
+        bgColor: 'gradient',
+        paddingTop: 'none',
+        paddingBottom: 'none',
+        content: JSON.stringify({
+          title: { ru: 'Игрушки от производителя', en: 'Toys from manufacturer', uz: 'Ishlab chiqaruvchidan oʻyinchoqlar' },
+          subtitle: { ru: 'Крупнейший производитель игрушек в Центральной Азии', en: 'Largest toy manufacturer in Central Asia', uz: 'Markaziy Osiyodagi eng yirik oʻyinchoqlar ishlab chiqaruvchisi' },
+          backgroundImage: '/images/backgrounds/background.svg',
+          buttons: [
+            { text: { ru: 'В каталог', en: 'To catalog', uz: 'Katalogga' }, url: '/catalog', variant: 'primary' },
+            { text: { ru: 'О компании', en: 'About us', uz: 'Kompaniya haqida' }, url: '/about', variant: 'secondary' }
+          ]
+        })
+      },
+      {
+        page: 'home',
+        blockType: 'stats',
+        title: 'Статистика',
+        isEnabled: true,
+        order: 2,
+        bgColor: 'gradient',
+        paddingTop: 'lg',
+        paddingBottom: 'lg',
+        content: JSON.stringify({
+          stats: [
+            { value: 15, suffix: '+', label: { ru: 'лет на рынке', en: 'years on market', uz: 'bozorda yil' } },
+            { value: 71, suffix: 'M+', label: { ru: 'игрушек произведено', en: 'toys produced', uz: 'ishlab chiqarilgan oʻyinchoqlar' } },
+            { value: 1000, suffix: '+', label: { ru: 'сотрудников', en: 'employees', uz: 'xodimlar' } },
+            { value: 12, suffix: '', label: { ru: 'стран экспорта', en: 'export countries', uz: 'eksport mamlakatlari' } }
+          ]
+        })
+      },
+      {
+        page: 'home',
+        blockType: 'partners',
+        title: 'Наши партнеры',
+        isEnabled: true,
+        order: 3,
+        bgColor: 'gradient',
+        paddingTop: 'lg',
+        paddingBottom: 'lg',
+        content: JSON.stringify({
+          title: { ru: 'Наши партнеры', en: 'Our partners', uz: 'Bizning hamkorlar' },
+          subtitle: { ru: 'Мы сотрудничаем с ведущими компаниями по всему миру', en: 'We cooperate with leading companies worldwide', uz: 'Biz butun dunyo boʻylab yetakchi kompaniyalar bilan hamkorlik qilamiz' }
+        })
+      },
+      {
+        page: 'home',
+        blockType: 'factory',
+        title: 'Производство',
+        isEnabled: true,
+        order: 4,
+        bgColor: 'alternate',
+        paddingTop: 'xl',
+        paddingBottom: 'xl',
+        content: JSON.stringify({
+          title: { ru: 'Производство мирового уровня', en: 'World-class production', uz: 'Jahon darajasidagi ishlab chiqarish' },
+          description: { ru: 'Toybola — крупнейший производитель игрушек в Центральной Азии', en: 'Toybola is the largest toy manufacturer in Central Asia', uz: 'Toybola Markaziy Osiyodagi eng yirik oʻyinchoqlar ishlab chiqaruvchisi' },
+          features: [
+            { title: { ru: 'Современное производство', en: 'Modern production', uz: 'Zamonaviy ishlab chiqarish' }, description: { ru: 'Передовые технологии и автоматизированные линии', en: 'Advanced technologies and automated lines', uz: 'Zamonaviy texnologiyalar va avtomatlashtirilgan liniyalar' } },
+            { title: { ru: 'Контроль качества', en: 'Quality control', uz: 'Sifat nazorati' }, description: { ru: 'Многоступенчатая система проверки каждой игрушки', en: 'Multi-level inspection system for each toy', uz: 'Har bir oʻyinchoqni koʻp bosqichli tekshirish tizimi' } },
+            { title: { ru: 'Безопасные материалы', en: 'Safe materials', uz: 'Xavfsiz materiallar' }, description: { ru: 'Только сертифицированные и экологичные материалы', en: 'Only certified and eco-friendly materials', uz: 'Faqat sertifikatlangan va ekologik toza materiallar' } },
+            { title: { ru: 'Собственный дизайн', en: 'Original design', uz: 'Original dizayn' }, description: { ru: 'Уникальные разработки и кастомизация продукции', en: 'Unique developments and product customization', uz: 'Nozik ishlanmalar va mahsulotlarni sozlash' } }
+          ]
+        })
+      },
+      {
+        page: 'home',
+        blockType: 'export',
+        title: 'География экспорта',
+        isEnabled: true,
+        order: 5,
+        bgColor: 'gradient',
+        paddingTop: 'xl',
+        paddingBottom: 'xl',
+        content: JSON.stringify({
+          title: { ru: 'География экспорта', en: 'Export geography', uz: 'Eksport geografiyasi' },
+          subtitle: { ru: 'Наша продукция представлена в 12 странах мира', en: 'Our products are available in 12 countries', uz: 'Bizning mahsulotlarimiz 12 mamlakatda mavjud' },
+          countries: [
+            { name: 'Казахстан', flag: '🇰🇿', count: '2.5M+' },
+            { name: 'Россия', flag: '🇷🇺', count: '15M+' },
+            { name: 'Узбекистан', flag: '🇺🇿', count: '8M+' },
+            { name: 'Кыргызстан', flag: '🇰🇬', count: '1.2M+' },
+            { name: 'Таджикистан', flag: '🇹🇯', count: '900K+' },
+            { name: 'Туркменистан', flag: '🇹🇲', count: '600K+' },
+            { name: 'Азербайджан', flag: '🇦🇿', count: '1.8M+' },
+            { name: 'Грузия', flag: '🇬🇪', count: '700K+' },
+            { name: 'Армения', flag: '🇦🇲', count: '500K+' },
+            { name: 'Беларусь', flag: '🇧🇾', count: '2M+' },
+            { name: 'Польша', flag: '🇵🇱', count: '3M+' },
+            { name: 'Германия', flag: '🇩🇪', count: '5M+' }
+          ]
+        })
+      },
+      {
+        page: 'home',
+        blockType: 'contact_form',
+        title: 'Контактная форма',
+        isEnabled: true,
+        order: 6,
+        bgColor: 'gradient',
+        paddingTop: 'xl',
+        paddingBottom: 'xl',
+        content: JSON.stringify({
+          title: { ru: 'Свяжитесь с нами', en: 'Contact us', uz: 'Biz bilan bogʻlaning' },
+          subtitle: { ru: 'Заполните форму и мы свяжемся с вами в ближайшее время', en: 'Fill out the form and we will contact you soon', uz: 'Formani toʻldiring va biz tez orada siz bilan bogʻlaymiz' }
+        })
+      }
+    ],
+  });
+
+  console.log('✅ Page blocks created');
+
   console.log('🎉 Seed completed successfully!');
 }
 

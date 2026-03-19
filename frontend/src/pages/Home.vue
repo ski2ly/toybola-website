@@ -1,39 +1,136 @@
 <script setup>
-import { onMounted } from 'vue'
-import { useCatalogStore } from '@/stores/catalog'
+import { ref } from 'vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
-import HeroSection from '@/components/sections/HeroSection.vue'
-import StatsSection from '@/components/sections/StatsSection.vue'
-import PartnersSection from '@/components/sections/PartnersSection.vue'
-import FactorySection from '@/components/sections/FactorySection.vue'
-import ExportSection from '@/components/sections/ExportSection.vue'
-import ContactFormSection from '@/components/sections/ContactFormSection.vue'
+import DynamicBlockRenderer from '@/components/sections/DynamicBlockRenderer.vue'
 
-const catalogStore = useCatalogStore()
+// Временные хардкод блоки (пока API не работает)
+const blocks = ref([
+  {
+    id: 1,
+    page: 'home',
+    blockType: 'hero',
+    title: 'Hero секция',
+    isEnabled: true,
+    order: 1,
+    bgColor: 'gradient',
+    paddingTop: 'none',
+    paddingBottom: 'none',
+    content: {
+      title: { ru: 'Игрушки от производителя' },
+      subtitle: { ru: 'Крупнейший производитель игрушек в Центральной Азии' },
+      backgroundImage: '/images/backgrounds/background.svg'
+    }
+  },
+  {
+    id: 2,
+    page: 'home',
+    blockType: 'stats',
+    title: 'Статистика',
+    isEnabled: true,
+    order: 2,
+    bgColor: 'gradient',
+    paddingTop: 'lg',
+    paddingBottom: 'lg',
+    content: {
+      stats: [
+        { value: 15, suffix: '+', label: { ru: 'лет на рынке' } },
+        { value: 71, suffix: 'M+', label: { ru: 'игрушек произведено' } },
+        { value: 1000, suffix: '+', label: { ru: 'сотрудников' } },
+        { value: 12, suffix: '', label: { ru: 'стран экспорта' } }
+      ]
+    }
+  },
+  {
+    id: 3,
+    page: 'home',
+    blockType: 'partners',
+    title: 'Наши партнеры',
+    isEnabled: true,
+    order: 3,
+    bgColor: 'gradient',
+    paddingTop: 'lg',
+    paddingBottom: 'lg',
+    content: {
+      title: { ru: 'Наши партнеры' },
+      subtitle: { ru: 'Мы сотрудничаем с ведущими компаниями по всему миру' }
+    }
+  },
+  {
+    id: 4,
+    page: 'home',
+    blockType: 'factory',
+    title: 'Производство',
+    isEnabled: true,
+    order: 4,
+    bgColor: 'alternate',
+    paddingTop: 'xl',
+    paddingBottom: 'xl',
+    content: {
+      title: { ru: 'Производство мирового уровня' },
+      description: { ru: 'Toybola — крупнейший производитель игрушек в Центральной Азии' },
+      features: [
+        { title: { ru: 'Современное производство' }, description: { ru: 'Передовые технологии и автоматизированные линии' } },
+        { title: { ru: 'Контроль качества' }, description: { ru: 'Многоступенчатая система проверки каждой игрушки' } },
+        { title: { ru: 'Безопасные материалы' }, description: { ru: 'Только сертифицированные и экологичные материалы' } },
+        { title: { ru: 'Собственный дизайн' }, description: { ru: 'Уникальные разработки и кастомизация продукции' } }
+      ]
+    }
+  },
+  {
+    id: 5,
+    page: 'home',
+    blockType: 'export',
+    title: 'География экспорта',
+    isEnabled: true,
+    order: 5,
+    bgColor: 'gradient',
+    paddingTop: 'xl',
+    paddingBottom: 'xl',
+    content: {
+      title: { ru: 'География экспорта' },
+      subtitle: { ru: 'Наша продукция представлена в 12 странах мира' },
+      countries: [
+        { name: 'Казахстан', flag: '🇰🇿', count: '2.5M+' },
+        { name: 'Россия', flag: '🇷🇺', count: '15M+' },
+        { name: 'Узбекистан', flag: '🇺🇿', count: '8M+' },
+        { name: 'Кыргызстан', flag: '🇰🇬', count: '1.2M+' },
+        { name: 'Таджикистан', flag: '🇹🇯', count: '900K+' },
+        { name: 'Туркменистан', flag: '🇹🇲', count: '600K+' },
+        { name: 'Азербайджан', flag: '🇦🇿', count: '1.8M+' },
+        { name: 'Грузия', flag: '🇬🇪', count: '700K+' },
+        { name: 'Армения', flag: '🇦🇲', count: '500K+' },
+        { name: 'Беларусь', flag: '🇧🇾', count: '2M+' },
+        { name: 'Польша', flag: '🇵🇱', count: '3M+' },
+        { name: 'Германия', flag: '🇩🇪', count: '5M+' }
+      ]
+    }
+  },
+  {
+    id: 6,
+    page: 'home',
+    blockType: 'contact_form',
+    title: 'Контактная форма',
+    isEnabled: true,
+    order: 6,
+    bgColor: 'gradient',
+    paddingTop: 'xl',
+    paddingBottom: 'xl',
+    content: {
+      title: { ru: 'Свяжитесь с нами' },
+      subtitle: { ru: 'Заполните форму и мы свяжемся с вами в ближайшее время' }
+    }
+  }
+])
 
-onMounted(async () => {
-  await catalogStore.fetchCategories()
-})
+const enabledBlocks = blocks.value.filter(b => b.isEnabled)
 </script>
 
 <template>
   <DefaultLayout>
-    <!-- Hero Section -->
-    <HeroSection />
-
-    <!-- Stats Section -->
-    <StatsSection />
-
-    <!-- Partners Section -->
-    <PartnersSection />
-
-    <!-- Factory Section -->
-    <FactorySection />
-
-    <!-- Export Section -->
-    <ExportSection />
-
-    <!-- Contact Form Section -->
-    <ContactFormSection />
+    <DynamicBlockRenderer
+      v-for="block in enabledBlocks"
+      :key="block.id"
+      :block="block"
+    />
   </DefaultLayout>
 </template>

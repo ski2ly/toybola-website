@@ -159,7 +159,7 @@ const handleSubmit = async () => {
                     v-model="form.phone"
                     type="tel"
                     required
-                    placeholder="+7 (___) ___-__-__"
+                    placeholder="Ваш номер телефона"
                     class="w-full px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-brand-blue focus:ring-4 focus:ring-brand-blue/10 transition-all duration-300 bg-gray-50 hover:bg-white"
                   />
                   <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-focus-within:opacity-100 transition-opacity">
