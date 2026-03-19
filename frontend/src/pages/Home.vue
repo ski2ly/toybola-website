@@ -1,7 +1,11 @@
 <script setup>
 import { ref } from 'vue'
+import { useHomeSeo } from '@/composables/useSeo'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import DynamicBlockRenderer from '@/components/sections/DynamicBlockRenderer.vue'
+
+// SEO
+useHomeSeo()
 
 // Временные хардкод блоки (пока API не работает)
 const blocks = ref([

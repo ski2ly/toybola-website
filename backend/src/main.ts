@@ -4,12 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as path from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  let app;
+  let app: NestExpressApplication;
 
   try {
-    app = await NestFactory.create(AppModule, {
+    app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
     });
 
@@ -30,6 +31,11 @@ async function bootstrap() {
         }
       },
       credentials: true,
+    });
+
+    // Serve static files from uploads directory
+    app.useStaticAssets(path.join(__dirname, '..', 'uploads'), {
+      prefix: '/uploads/',
     });
 
     // Global validation pipe
@@ -73,7 +79,7 @@ async function bootstrap() {
 
     const port = process.env.PORT || 3000;
     await app.listen(port);
-    
+
     console.log(`
     ╔═══════════════════════════════════════════════════════════╗
     ║                                                           ║
@@ -81,6 +87,7 @@ async function bootstrap() {
     ║                                                           ║
     ║   API:        http://localhost:${port}                   ║
     ║   Swagger:    http://localhost:${port}/api/docs          ║
+    ║   Uploads:    http://localhost:${port}/uploads/          ║
     ║                                                           ║
     ╚═══════════════════════════════════════════════════════════╝
     `);

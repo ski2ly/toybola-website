@@ -9,10 +9,17 @@ import {
   Query,
   ParseIntPipe,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
+import { UploadProductImagesDto, ProductImageResponseDto } from './dto/upload-images.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @ApiTags('Products')
@@ -63,5 +70,95 @@ export class ProductsController {
   @ApiOperation({ summary: 'Delete product' })
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.productsService.remove(id);
+  }
+
+  // Image upload endpoints
+  @Post(':id/images')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'Product images to upload',
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Upload product images' })
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'files', maxCount: 10 },
+        { name: 'primaryIndex', maxCount: 1 },
+      ],
+      {
+        storage: diskStorage({
+          destination: (req, file, cb) => {
+            const productId = req.params.id;
+            const uploadPath = `./uploads/products/${productId}`;
+            cb(null, uploadPath);
+          },
+          filename: (req, file, cb) => {
+            const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+            const ext = extname(file.originalname);
+            cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+          },
+        }),
+        fileFilter: (req, file, cb) => {
+          if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
+            return cb(new BadRequestException('Only image files are allowed!'), false);
+          }
+          cb(null, true);
+        },
+      },
+    ),
+  )
+  async uploadImages(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFiles() files: { files?: Express.Multer.File[] },
+    @Body('primaryIndex') primaryIndex?: string,
+  ) {
+    if (!files.files || files.files.length === 0) {
+      throw new BadRequestException('No files uploaded');
+    }
+
+    const primaryIdx = primaryIndex ? parseInt(primaryIndex, 10) : 0;
+    return this.productsService.uploadImages(id, files.files, primaryIdx);
+  }
+
+  @Get(':id/images')
+  @ApiOperation({ summary: 'Get product images' })
+  async getImages(@Param('id', ParseIntPipe) id: number): Promise<ProductImageResponseDto[]> {
+    return this.productsService.getProductImages(id);
+  }
+
+  @Delete(':id/images/:imageId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete product image' })
+  async deleteImage(
+    @Param('id', ParseIntPipe) productId: number,
+    @Param('imageId', ParseIntPipe) imageId: number,
+  ) {
+    return this.productsService.deleteImage(productId, imageId);
+  }
+
+  @Put(':id/images/:imageId/primary')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Set primary image for product' })
+  async setPrimaryImage(
+    @Param('id', ParseIntPipe) productId: number,
+    @Param('imageId', ParseIntPipe) imageId: number,
+  ) {
+    return this.productsService.setPrimaryImage(productId, imageId);
   }
 }

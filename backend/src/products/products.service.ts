@@ -271,4 +271,87 @@ export class ProductsService {
       },
     });
   }
+
+  // Image upload methods
+  async uploadImages(productId: number, files: Express.Multer.File[], primaryIndex: number = 0) {
+    // Verify product exists
+    const product = await this.prisma.product.findUnique({ where: { id: productId } });
+    if (!product) {
+      throw new NotFoundException(`Product with id "${productId}" not found`);
+    }
+
+    // Get current max sort order
+    const maxOrder = await this.prisma.productImage.aggregate({
+      where: { productId },
+      _max: { sortOrder: true },
+    });
+    let currentSortOrder = maxOrder._max.sortOrder || 0;
+
+    // Create image records
+    const imageRecords = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const imageUrl = `/uploads/products/${productId}/${file.filename}`;
+      
+      const imageRecord = await this.prisma.productImage.create({
+        data: {
+          productId,
+          imageUrl,
+          altText: product.nameRu,
+          sortOrder: currentSortOrder + i + 1,
+          isPrimary: i === primaryIndex,
+        },
+      });
+      imageRecords.push(imageRecord);
+    }
+
+    return imageRecords;
+  }
+
+  async getProductImages(productId: number) {
+    return this.prisma.productImage.findMany({
+      where: { productId },
+      orderBy: { sortOrder: 'asc' },
+    });
+  }
+
+  async deleteImage(productId: number, imageId: number) {
+    // Verify image belongs to product
+    const image = await this.prisma.productImage.findFirst({
+      where: { id: imageId, productId },
+    });
+    if (!image) {
+      throw new NotFoundException(`Image with id "${imageId}" not found for product "${productId}"`);
+    }
+
+    // Delete the file from disk (optional - can be done with fs.unlink)
+    // For now, just delete from database
+    await this.prisma.productImage.delete({
+      where: { id: imageId },
+    });
+
+    return { success: true, message: 'Image deleted successfully' };
+  }
+
+  async setPrimaryImage(productId: number, imageId: number) {
+    // Verify image belongs to product
+    const image = await this.prisma.productImage.findFirst({
+      where: { id: imageId, productId },
+    });
+    if (!image) {
+      throw new NotFoundException(`Image with id "${imageId}" not found for product "${productId}"`);
+    }
+
+    // Update all images for this product to not primary
+    await this.prisma.productImage.updateMany({
+      where: { productId },
+      data: { isPrimary: false },
+    });
+
+    // Set the selected image as primary
+    return this.prisma.productImage.update({
+      where: { id: imageId },
+      data: { isPrimary: true },
+    });
+  }
 }

@@ -7,6 +7,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { ImportModule } from './import/import.module';
 import { ContactFormModule } from './contact-form/contact-form.module';
+import { SeoModule } from './seo/seo.module';
 // import { PageBlocksModule } from './page-blocks/page-blocks.module';
 
 @Module({
@@ -27,6 +28,7 @@ import { ContactFormModule } from './contact-form/contact-form.module';
     CategoriesModule,
     ImportModule,
     ContactFormModule,
+    SeoModule,
     // PageBlocksModule, // TODO: Fix route registration
   ],
 })
