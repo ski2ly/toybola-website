@@ -7,7 +7,7 @@ import * as path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  let app: NestExpressApplication;
+  let app: NestExpressApplication | undefined;
 
   try {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {

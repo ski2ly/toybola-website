@@ -27,13 +27,8 @@ export class SitemapController {
 
     // Get all subcategories
     const subcategories = await this.prisma.subcategory.findMany({
-      select: { slug: true, updatedAt: true, categoryId: true },
-      where: { isActive: true },
-      include: {
-        category: {
-          select: { slug: true }
-        }
-      }
+      select: { slug: true, updatedAt: true, category: { select: { slug: true } } },
+      where: { isActive: true }
     });
 
     // Build XML
@@ -86,7 +81,7 @@ export class SitemapController {
     // Add subcategories
     subcategories.forEach(subcat => {
       xml += `  <url>
-    <loc>${baseUrl}/catalog/${subcat.category.slug}/${subcat.slug}</loc>
+    <loc>${baseUrl}/catalog/${subcat.category?.slug || 'category'}/${subcat.slug}</loc>
     <lastmod>${subcat.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
