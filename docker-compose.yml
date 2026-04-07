@@ -18,6 +18,19 @@ services:
       timeout: 5s
       retries: 5
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: toybola-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Adminer (Database UI)
   adminer:
     image: adminer:latest
@@ -29,6 +42,36 @@ services:
       ADMINER_DEFAULT_SERVER: postgres
     depends_on:
       - postgres
+
+  # Backend API
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: toybola-backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Frontend SPA
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api/v1}
+    container_name: toybola-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:

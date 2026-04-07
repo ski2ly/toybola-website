@@ -26,6 +26,23 @@ if errorlevel 1 (
 )
 echo ✅ Node.js найден
 
+REM Создание .env файлов если не существуют
+echo.
+echo ⚙️  Настройка переменных окружения...
+if not exist "backend\.env" (
+    copy backend\.env.example backend\.env
+    echo ✅ Создан backend/.env (заполните значения перед production!)
+) else (
+    echo ℹ️  backend/.env уже существует
+)
+
+if not exist "frontend\.env" (
+    copy frontend\.env.example frontend\.env
+    echo ✅ Создан frontend/.env
+) else (
+    echo ℹ️  frontend/.env уже существует
+)
+
 REM Запуск Docker контейнеров
 echo.
 echo 🐳 Запуск Docker контейнеров...
@@ -61,7 +78,11 @@ call npx prisma generate
 REM Применение миграций
 echo.
 echo 🗄️ Применение миграций...
-call npx prisma migrate dev --name init
+if not exist "prisma\migrations" (
+    call npx prisma migrate dev --name init
+) else (
+    call npx prisma migrate deploy
+)
 
 REM Seed данных
 echo.
@@ -93,7 +114,7 @@ echo 📍 Swagger:  http://localhost:3000/api/docs
 echo.
 echo 🔐 Админ-панель:
 echo    Email: admin@toybola.com
-echo    Password: admin123
+echo    Password: значение ADMIN_PASSWORD из backend/.env
 echo.
 echo 🚀 Для запуска выполните:
 echo    cd backend ^&^& npm run start:dev

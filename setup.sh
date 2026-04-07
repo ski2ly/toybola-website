@@ -25,6 +25,23 @@ fi
 NODE_VERSION=$(node -v)
 echo "✅ Node.js $NODE_VERSION"
 
+# Создание .env файлов если не существуют
+echo ""
+echo "⚙️  Настройка переменных окружения..."
+if [ ! -f "backend/.env" ]; then
+  cp backend/.env.example backend/.env
+  echo "✅ Создан backend/.env (заполните значения перед production!)"
+else
+  echo "ℹ️  backend/.env уже существует"
+fi
+
+if [ ! -f "frontend/.env" ]; then
+  cp frontend/.env.example frontend/.env
+  echo "✅ Создан frontend/.env"
+else
+  echo "ℹ️  frontend/.env уже существует"
+fi
+
 # Запуск Docker контейнеров
 echo ""
 echo "🐳 Запуск Docker контейнеров..."
@@ -39,7 +56,14 @@ echo "✅ Docker контейнеры запущены"
 # Ожидание готовности PostgreSQL
 echo ""
 echo "⏳ Ожидание готовности PostgreSQL..."
-sleep 5
+for i in $(seq 1 30); do
+    if docker exec toybola-postgres pg_isready -U toybola_user -d toybola_db > /dev/null 2>&1; then
+        echo "✅ PostgreSQL готов"
+        break
+    fi
+    echo "⏳ Ожидание PostgreSQL... ($i/30)"
+    sleep 2
+done
 
 # Установка зависимостей Backend
 echo ""
@@ -60,7 +84,11 @@ npx prisma generate
 # Применение миграций
 echo ""
 echo "🗄️ Применение миграций..."
-npx prisma migrate dev --name init
+if [ ! -d "prisma/migrations" ] || [ -z "$(ls -A prisma/migrations 2>/dev/null)" ]; then
+    npx prisma migrate dev --name init
+else
+    npx prisma migrate deploy
+fi
 
 # Seed данных
 echo ""
@@ -92,7 +120,7 @@ echo "📍 Swagger:  http://localhost:3000/api/docs"
 echo ""
 echo "🔐 Админ-панель:"
 echo "   Email: admin@toybola.com"
-echo "   Password: admin123"
+echo "   Password: значение ADMIN_PASSWORD из backend/.env"
 echo ""
 echo "🚀 Для запуска выполните:"
 echo "   cd backend && npm run start:dev"

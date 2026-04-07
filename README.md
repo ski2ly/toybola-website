@@ -79,9 +79,23 @@ B2B Product Catalog Platform for Toybola — a modern, full-stack web applicatio
 ### Default Admin Credentials
 After running the seed script, login with:
 - Email: `admin@toybola.com`
-- Password: value of `ADMIN_PASSWORD` env var (default: `admin123`)
+- Password: value of `ADMIN_PASSWORD` from `backend/.env`
 
-> **Security Note:** Change the default admin password in production!
+> **Security Note:** Change `ADMIN_PASSWORD` and `DB_PASSWORD` in `.env` files before production!
+
+## Docker
+
+### Development
+```bash
+docker-compose up -d postgres redis adminer
+```
+
+### Production (with full build)
+```bash
+docker-compose up -d --build
+```
+
+This builds and runs all services: PostgreSQL, Redis, Backend API, Frontend SPA (nginx), and Adminer.
 
 ## Project Structure
 
@@ -109,7 +123,10 @@ toybola-website/
 │   │   ├── services/  # API clients
 │   │   └── router/
 │   └── public/
-└── docker-compose.yml # PostgreSQL + Adminer
+├── docker-compose.yml # PostgreSQL + Redis + Adminer + Backend + Frontend
+├── Dockerfile.backend # Production Docker build for backend
+├── Dockerfile.frontend # Production Docker build for frontend
+└── nginx.conf         # Nginx config for frontend + API proxy
 ```
 
 ## Available Commands
@@ -132,22 +149,30 @@ When the backend is running, visit http://localhost:3000/api/docs for interactiv
 
 ## Deployment
 
+### Docker (Recommended for Production)
+```bash
+docker-compose up -d --build
+```
+This builds and runs all services with proper health checks.
+
 ### Backend (Vercel)
-The backend is configured for Vercel serverless deployment. See `backend/vercel.json`.
+The backend is also configured for Vercel serverless deployment. See `backend/vercel.json`.
 
 ### Frontend (Vercel)
-The frontend is configured for Vercel static deployment. See `frontend/vercel.json`.
+The frontend is also configured for Vercel static deployment. See `frontend/vercel.json`.
 
 ### Environment Variables for Production
-Set these in your hosting platform:
+Set these in your hosting platform or `.env` files:
 
-**Backend:**
-- `DATABASE_URL` (required)
-- `JWT_SECRET` (required — use a strong random string)
-- `ALLOWED_ORIGINS` (comma-separated list of frontend URLs)
+**Backend (`backend/.env`):**
+- `DB_PASSWORD` — strong database password (required)
+- `DATABASE_URL` — full PostgreSQL connection string
+- `JWT_SECRET` — required, use a strong random 64-char string
+- `FRONTEND_URL` — production frontend URL for CORS
+- `ADMIN_PASSWORD` — strong admin password
 
-**Frontend:**
-- `VITE_API_URL` (required — backend URL)
+**Frontend (`frontend/.env`):**
+- `VITE_API_URL` — backend API URL
 
 ## License
 
