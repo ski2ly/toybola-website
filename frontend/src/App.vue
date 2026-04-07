@@ -1,17 +1,25 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import CustomCursor from '@/components/common/CustomCursor.vue'
+import ScrollProgress from '@/components/common/ScrollProgress.vue'
 </script>
 
 <template>
   <div class="relative">
+    <!-- Custom cursor -->
+    <CustomCursor />
+
+    <!-- Scroll progress -->
+    <ScrollProgress />
+
     <!-- Loader - исчезает сам через CSS анимацию -->
     <div class="loader fixed inset-0 z-[9999] flex items-center justify-center">
       <!-- Фоновое изображение -->
       <div class="absolute inset-0 bg-cover bg-center bg-no-repeat" style="background-image: url('/images/backgrounds/background.svg');"></div>
-      
+
       <!-- Градиент поверх фона -->
       <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(227, 30, 36, 0.92) 0%, rgba(0, 114, 206, 0.92) 100%);"></div>
-      
+
       <!-- Логотип по центру -->
       <div class="relative z-10 text-center">
         <img

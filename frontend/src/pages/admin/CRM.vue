@@ -5,6 +5,7 @@ import { contactFormService } from '@/services'
 import { Badge } from '@/components/ui'
 
 const submissions = ref([])
+const stats = ref({ new: 0, in_progress: 0, completed: 0, total: 0 })
 const loading = ref(true)
 const selectedStatus = ref('all')
 const selectedTopic = ref('all')
@@ -48,9 +49,14 @@ const topicLabels = {
   other: 'Другое',
 }
 
-onMounted(async () => {
-  await fetchSubmissions()
-})
+const fetchStats = async () => {
+  try {
+    const response = await contactFormService.getStats()
+    stats.value = response.data
+  } catch (error) {
+    console.error('Error fetching stats:', error)
+  }
+}
 
 const fetchSubmissions = async () => {
   loading.value = true
@@ -58,7 +64,7 @@ const fetchSubmissions = async () => {
     const params = {}
     if (selectedStatus.value !== 'all') params.status = selectedStatus.value
     if (selectedTopic.value !== 'all') params.topic = selectedTopic.value
-    
+
     const response = await contactFormService.getAll(params)
     submissions.value = response.data.data || []
   } catch (error) {
@@ -67,6 +73,10 @@ const fetchSubmissions = async () => {
     loading.value = false
   }
 }
+
+onMounted(async () => {
+  await Promise.all([fetchSubmissions(), fetchStats()])
+})
 
 const updateStatus = async (id, status) => {
   try {
@@ -114,25 +124,25 @@ const formatDate = (dateString) => {
         <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-blue-500">
           <div class="text-sm text-gray-500 mb-1">Новые</div>
           <div class="text-3xl font-bold text-blue-600">
-            {{ submissions.filter(s => s.status === 'new').length }}
+            {{ stats.new }}
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-yellow-500">
           <div class="text-sm text-gray-500 mb-1">В работе</div>
           <div class="text-3xl font-bold text-yellow-600">
-            {{ submissions.filter(s => s.status === 'in_progress').length }}
+            {{ stats.in_progress }}
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-green-500">
           <div class="text-sm text-gray-500 mb-1">Завершено</div>
           <div class="text-3xl font-bold text-green-600">
-            {{ submissions.filter(s => s.status === 'completed').length }}
+            {{ stats.completed }}
           </div>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-6 border-l-4 border-gray-500">
           <div class="text-sm text-gray-500 mb-1">Всего</div>
           <div class="text-3xl font-bold text-gray-600">
-            {{ submissions.length }}
+            {{ stats.total }}
           </div>
         </div>
       </div>

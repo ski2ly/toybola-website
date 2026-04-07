@@ -128,6 +128,10 @@ export const contactFormService = {
     return api.get('/admin/contact-form', { params })
   },
 
+  getStats() {
+    return api.get('/admin/contact-form/stats')
+  },
+
   updateStatus(id, status) {
     return api.patch(`/admin/contact-form/${id}/status`, { status })
   },

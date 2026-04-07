@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { contactFormService } from '@/services'
 
 const router = useRouter()
 const form = ref({
@@ -12,8 +13,28 @@ const form = ref({
   message: ''
 })
 
-const submitForm = () => {
-  console.log('Form submitted:', form.value)
+const isSubmitting = ref(false)
+const submitted = ref(false)
+const submitError = ref('')
+
+const submitForm = async () => {
+  isSubmitting.value = true
+  submitError.value = ''
+
+  try {
+    await contactFormService.submit({
+      name: form.value.name,
+      phone: form.value.phone,
+      email: form.value.email || null,
+      topic: form.value.topic,
+      message: form.value.message || null
+    })
+    submitted.value = true
+  } catch (error) {
+    submitError.value = error.response?.data?.message || 'Ошибка отправки. Попробуйте позже.'
+  } finally {
+    isSubmitting.value = false
+  }
 }
 
 const navigateTo = (path) => {
@@ -144,7 +165,19 @@ const navigateTo = (path) => {
                   <label class="block text-sm font-medium text-gray-700 mb-2">Сообщение</label>
                   <textarea v-model="form.message" rows="4" placeholder="Опишите ваш вопрос..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all resize-none"></textarea>
                 </div>
-                <button type="submit" class="w-full py-4 bg-gradient-to-r from-brand-red to-red-600 text-white font-bold rounded-xl hover:shadow-xl transition-all duration-300 transform hover:scale-105">Отправить сообщение</button>
+                <button
+                  type="submit"
+                  :disabled="isSubmitting"
+                  class="w-full py-4 bg-gradient-to-r from-brand-red to-red-600 text-white font-bold rounded-xl hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ isSubmitting ? 'Отправка...' : 'Отправить сообщение' }}
+                </button>
+                <p v-if="submitError" class="text-sm text-red-500 text-center bg-red-50 py-2 px-4 rounded-lg">
+                  {{ submitError }}
+                </p>
+                <p v-if="submitted" class="text-sm text-green-500 text-center bg-green-50 py-2 px-4 rounded-lg">
+                  ✅ Сообщение отправлено! Мы свяжемся с вами в ближайшее время.
+                </p>
                 <p class="text-xs text-gray-500 text-center">Нажимая кнопку, вы соглашаетесь с политикой обработки персональных данных</p>
               </form>
             </div>
