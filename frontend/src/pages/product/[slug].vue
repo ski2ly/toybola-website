@@ -73,6 +73,10 @@ const tabs = [
 const navigateToCategory = (categorySlug) => {
   router.push(`/catalog/${categorySlug}`)
 }
+
+const openExternalCatalog = () => {
+  window.open('https://ctgtb.uz', '_blank')
+}
 </script>
 
 <template>
@@ -334,7 +338,7 @@ const navigateToCategory = (categorySlug) => {
         <Container size="xl">
           <div class="flex items-center justify-between mb-8">
             <Heading size="2xl">Похожие товары</Heading>
-            <Button variant="ghost" @click="window.open('https://ctgtb.uz', '_blank')">
+            <Button variant="ghost" @click="openExternalCatalog">
               Смотреть все
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -359,7 +363,7 @@ const navigateToCategory = (categorySlug) => {
         <div class="text-7xl mb-6">😕</div>
         <Heading size="2xl" class="mb-4">Товар не найден</Heading>
         <p class="text-gray-600 mb-6">К сожалению, товар с таким адресом не существует</p>
-        <Button @click="window.open('https://ctgtb.uz', '_blank')" variant="secondary">
+        <Button @click="openExternalCatalog" variant="secondary">
           Вернуться в каталог ↗
         </Button>
       </div>

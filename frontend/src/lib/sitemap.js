@@ -3,7 +3,7 @@
  * Generates sitemap.xml from API data
  */
 
-const BASE_URL = 'https://toybola.com'
+const BASE_URL = 'https://toybola.uz'
 
 export async function generateSitemap(products = [], categories = []) {
   const urls = []
@@ -90,9 +90,4 @@ function createSitemapXML(urls) {
 
   xml += '</urlset>'
   return xml
-}
-
-// For Node.js usage
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { generateSitemap }
 }

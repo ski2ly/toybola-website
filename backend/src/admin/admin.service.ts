@@ -1,7 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { slugify } from '../utils/slugify';
-import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class AdminService {
@@ -45,10 +44,12 @@ export class AdminService {
 
     const where: any = {};
     if (search) {
+      const searchLower = search.toLowerCase();
       where.OR = [
-        { sku: { contains: search, mode: 'insensitive' } },
-        { nameRu: { contains: search, mode: 'insensitive' } },
-        { nameEn: { contains: search, mode: 'insensitive' } },
+        { sku: { contains: searchLower } },
+        { nameRu: { contains: searchLower } },
+        { nameEn: { contains: searchLower } },
+        { nameUz: { contains: searchLower } },
       ];
     }
 
@@ -112,18 +113,26 @@ export class AdminService {
     });
 
     if (existing) {
-      throw new NotFoundException(`Product with SKU "${dto.sku}" already exists`);
+      throw new BadRequestException(`Product with SKU "${dto.sku}" already exists`);
     }
 
     const slug = dto.slug || slugify(dto.nameRu);
+
+    // Check for duplicate slug
+    const existingSlug = await this.prisma.product.findUnique({
+      where: { slug },
+    });
+    if (existingSlug) {
+      throw new BadRequestException(`Product with slug "${slug}" already exists`);
+    }
 
     return this.prisma.product.create({
       data: {
         ...dto,
         slug,
-        weightKg: dto.weightKg ? new Decimal(dto.weightKg) : undefined,
-        priceMinUsd: dto.priceMinUsd ? new Decimal(dto.priceMinUsd) : undefined,
-        priceMaxUsd: dto.priceMaxUsd ? new Decimal(dto.priceMaxUsd) : undefined,
+        weightKg: dto.weightKg ? Number(dto.weightKg) : undefined,
+        priceMinUsd: dto.priceMinUsd ? Number(dto.priceMinUsd) : undefined,
+        priceMaxUsd: dto.priceMaxUsd ? Number(dto.priceMaxUsd) : undefined,
       },
       include: {
         subcategory: {
@@ -143,16 +152,24 @@ export class AdminService {
 
     const data: any = { ...dto };
     if (dto.nameRu && !dto.slug) {
-      data.slug = slugify(dto.nameRu);
+      const newSlug = slugify(dto.nameRu);
+      // Check for slug collision
+      const slugConflict = await this.prisma.product.findUnique({
+        where: { slug: newSlug },
+      });
+      if (slugConflict && slugConflict.id !== id) {
+        throw new BadRequestException(`Product with slug "${newSlug}" already exists`);
+      }
+      data.slug = newSlug;
     }
     if (dto.weightKg) {
-      data.weightKg = new Decimal(dto.weightKg);
+      data.weightKg = Number(dto.weightKg);
     }
     if (dto.priceMinUsd) {
-      data.priceMinUsd = new Decimal(dto.priceMinUsd);
+      data.priceMinUsd = Number(dto.priceMinUsd);
     }
     if (dto.priceMaxUsd) {
-      data.priceMaxUsd = new Decimal(dto.priceMaxUsd);
+      data.priceMaxUsd = Number(dto.priceMaxUsd);
     }
 
     return this.prisma.product.update({
@@ -193,6 +210,14 @@ export class AdminService {
   async createCategory(dto: any) {
     const slug = dto.slug || slugify(dto.nameRu);
 
+    // Check for duplicate slug
+    const existingSlug = await this.prisma.category.findUnique({
+      where: { slug },
+    });
+    if (existingSlug) {
+      throw new BadRequestException(`Category with slug "${slug}" already exists`);
+    }
+
     return this.prisma.category.create({
       data: {
         ...dto,
@@ -209,7 +234,15 @@ export class AdminService {
 
     const data: any = { ...dto };
     if (dto.nameRu && !dto.slug) {
-      data.slug = slugify(dto.nameRu);
+      const newSlug = slugify(dto.nameRu);
+      // Check for slug collision
+      const slugConflict = await this.prisma.category.findUnique({
+        where: { slug: newSlug },
+      });
+      if (slugConflict && slugConflict.id !== id) {
+        throw new BadRequestException(`Category with slug "${newSlug}" already exists`);
+      }
+      data.slug = newSlug;
     }
 
     return this.prisma.category.update({

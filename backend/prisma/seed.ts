@@ -9,7 +9,10 @@ async function main() {
   // ============================================
   // Создаем админ пользователя
   // ============================================
-  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
+  console.log(`⚠️  Admin password is set via ADMIN_PASSWORD env var (default: 'admin123')`);
 
   await prisma.adminUser.upsert({
     where: { email: 'admin@toybola.com' },

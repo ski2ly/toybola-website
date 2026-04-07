@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as path from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import helmet from 'helmet';
 
 async function bootstrap() {
   let app: NestExpressApplication | undefined;
@@ -13,6 +14,9 @@ async function bootstrap() {
     app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
     });
+
+    // Security headers with Helmet
+    app.use(helmet());
 
     // CORS configuration
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [

@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto, UpdateProductDto, FilterProductsDto } from './dto/product.dto';
@@ -103,12 +103,18 @@ export class ProductsController {
         storage: diskStorage({
           destination: (req, file, cb) => {
             const productId = req.params.id;
-            const uploadPath = `./uploads/products/${productId}`;
+            // Validate productId is a number to prevent path traversal
+            if (!/^\d+$/.test(productId)) {
+              return cb(new BadRequestException('Invalid product ID'), '');
+            }
+            const uploadPath = join(process.cwd(), 'uploads', 'products', productId);
             cb(null, uploadPath);
           },
           filename: (req, file, cb) => {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            const ext = extname(file.originalname);
+            // Sanitize filename to prevent directory traversal
+            const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const ext = extname(safeName);
             cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
           },
         }),

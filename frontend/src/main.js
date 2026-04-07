@@ -17,6 +17,8 @@ app.mount('#app')
 // ============================================
 // CUSTOM CURSOR (как на minixcollection)
 // ============================================
+let cursorAnimationFrame = null
+
 function initCustomCursor() {
   // Создаем элементы курсора только для десктопов
   if (window.innerWidth >= 1024) {
@@ -30,7 +32,7 @@ function initCustomCursor() {
     function animateCursor() {
       cursor.style.left = cursorX + 'px'
       cursor.style.top = cursorY + 'px'
-      requestAnimationFrame(animateCursor)
+      cursorAnimationFrame = requestAnimationFrame(animateCursor)
     }
     animateCursor()
 
@@ -76,6 +78,11 @@ let resizeTimer
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer)
   resizeTimer = setTimeout(() => {
+    // Cancel previous animation loop
+    if (cursorAnimationFrame) {
+      cancelAnimationFrame(cursorAnimationFrame)
+      cursorAnimationFrame = null
+    }
     const cursorElements = document.querySelectorAll('.custom-cursor')
     cursorElements.forEach(el => el.remove())
     if (window.innerWidth >= 1024) {

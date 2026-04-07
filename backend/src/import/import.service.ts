@@ -43,7 +43,8 @@ export class ImportService {
       fileName: filePath.split('/').pop() || 'unknown',
     };
 
-    // Parse rows
+    // Parse rows - process sequentially to ensure proper async handling
+    const rows: { rowNumber: number; rowData: any }[] = [];
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber === 1) {
         // First row is headers
@@ -53,23 +54,27 @@ export class ImportService {
         return;
       }
 
-      try {
-        const rowData: any = {};
-        row.eachCell((cell, colNumber) => {
-          const header = headers[colNumber - 1];
-          if (header) {
-            rowData[header] = cell.value;
-          }
-        });
+      const rowData: any = {};
+      row.eachCell((cell, colNumber) => {
+        const header = headers[colNumber - 1];
+        if (header) {
+          rowData[header] = cell.value;
+        }
+      });
+      rows.push({ rowNumber, rowData });
+    });
 
-        this.processRow(rowData, options, rowNumber, results);
+    // Process rows sequentially
+    for (const { rowNumber, rowData } of rows) {
+      try {
+        await this.processRow(rowData, options, rowNumber, results);
       } catch (error) {
         results.errors.push({
           row: rowNumber,
           message: error.message || 'Unknown error',
         });
       }
-    });
+    }
 
     // Save import log
     await this.prisma.importLog.create({

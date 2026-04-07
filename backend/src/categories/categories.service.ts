@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/category.dto';
 import { slugify } from '../utils/slugify';
@@ -63,6 +63,14 @@ export class CategoriesService {
   async create(dto: CreateCategoryDto) {
     const slug = dto.slug || slugify(dto.nameRu);
 
+    // Check for duplicate slug
+    const existingSlug = await this.prisma.category.findUnique({
+      where: { slug },
+    });
+    if (existingSlug) {
+      throw new BadRequestException(`Category with slug "${slug}" already exists`);
+    }
+
     return this.prisma.category.create({
       data: {
         ...dto,
@@ -78,8 +86,16 @@ export class CategoriesService {
     }
 
     const data: any = { ...dto };
-    if (dto.nameRu && !data.slug) {
-      data.slug = slugify(dto.nameRu);
+    if (dto.nameRu && !dto.slug) {
+      const newSlug = slugify(dto.nameRu);
+      // Check for slug collision
+      const slugConflict = await this.prisma.category.findUnique({
+        where: { slug: newSlug },
+      });
+      if (slugConflict && slugConflict.id !== id) {
+        throw new BadRequestException(`Category with slug "${newSlug}" already exists`);
+      }
+      data.slug = newSlug;
     }
 
     return this.prisma.category.update({

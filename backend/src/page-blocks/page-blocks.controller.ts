@@ -12,7 +12,7 @@ import {
 import { PageBlocksService } from './page-blocks.service';
 import { CreatePageBlockDto, UpdatePageBlockDto, ReorderPageBlocksDto } from './dto/page-block.dto';
 
-@Controller('api/v1/page-blocks')
+@Controller('page-blocks')
 export class PageBlocksController {
   constructor(private readonly pageBlocksService: PageBlocksService) {}
 

@@ -16,7 +16,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiConsumes } from '@nestjs/swagg
 import { ImportService } from './import.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import * as fs from 'fs';
 
 @ApiTags('Import')
@@ -32,7 +32,7 @@ export class ImportController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads/temp',
+        destination: join(process.cwd(), 'uploads', 'temp'),
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           cb(null, `import-${uniqueSuffix}${extname(file.originalname)}`);

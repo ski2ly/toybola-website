@@ -5,34 +5,15 @@ services:
     container_name: toybola-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: toybola_user
-      POSTGRES_PASSWORD: toybola_pass
-      POSTGRES_DB: toybola_db
+      POSTGRES_USER: ${POSTGRES_USER:-toybola_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-toybola_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-toybola_db}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - toybola-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U toybola_user -d toybola_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: toybola-redis
-    restart: unless-stopped
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - toybola-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-toybola_user} -d ${POSTGRES_DB:-toybola_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -48,15 +29,7 @@ services:
       ADMINER_DEFAULT_SERVER: postgres
     depends_on:
       - postgres
-    networks:
-      - toybola-network
 
 volumes:
   postgres_data:
     driver: local
-  redis_data:
-    driver: local
-
-networks:
-  toybola-network:
-    driver: bridge

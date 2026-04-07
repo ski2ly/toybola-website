@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "categories" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "nameRu" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
     "nameUz" TEXT NOT NULL,
@@ -11,13 +11,15 @@ CREATE TABLE "categories" (
     "imageUrl" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "subcategories" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "categoryId" INTEGER NOT NULL,
     "nameRu" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
@@ -29,14 +31,15 @@ CREATE TABLE "subcategories" (
     "imageUrl" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subcategories_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "products" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "sku" TEXT NOT NULL,
     "nameRu" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
@@ -47,70 +50,77 @@ CREATE TABLE "products" (
     "descriptionUz" TEXT,
     "subcategoryId" INTEGER,
     "dimensions" TEXT,
-    "weightKg" REAL,
+    "weightKg" DOUBLE PRECISION,
     "recommendedAge" TEXT,
     "material" TEXT,
     "packagingType" TEXT,
     "moq" INTEGER NOT NULL DEFAULT 1,
-    "priceMinUsd" REAL,
-    "priceMaxUsd" REAL,
+    "priceMinUsd" DOUBLE PRECISION,
+    "priceMaxUsd" DOUBLE PRECISION,
     "availability" TEXT NOT NULL DEFAULT 'in_stock',
     "isFeatured" BOOLEAN NOT NULL DEFAULT false,
     "isNew" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL,
-    CONSTRAINT "products_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "subcategories" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "product_images" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
     "imageUrl" TEXT NOT NULL,
     "altText" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "isPrimary" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "product_images_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "product_images_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "product_attributes" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "productId" INTEGER NOT NULL,
     "attributeName" TEXT NOT NULL,
     "attributeValue" TEXT NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "product_attributes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "product_attributes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "admin_users" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "role" TEXT NOT NULL DEFAULT 'admin',
     "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "admin_users_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "import_logs" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "fileName" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "createdCount" INTEGER NOT NULL DEFAULT 0,
     "updatedCount" INTEGER NOT NULL DEFAULT 0,
     "errorCount" INTEGER NOT NULL DEFAULT 0,
     "errors" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "import_logs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "contact_form_submissions" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
     "phone" TEXT NOT NULL,
     "email" TEXT,
@@ -118,8 +128,28 @@ CREATE TABLE "contact_form_submissions" (
     "message" TEXT,
     "status" TEXT NOT NULL DEFAULT 'new',
     "notes" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "contact_form_submissions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "page_blocks" (
+    "id" SERIAL NOT NULL,
+    "page" TEXT NOT NULL,
+    "blockType" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "isEnabled" BOOLEAN NOT NULL DEFAULT true,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "content" TEXT NOT NULL,
+    "bgColor" TEXT NOT NULL DEFAULT 'white',
+    "paddingTop" TEXT NOT NULL DEFAULT 'lg',
+    "paddingBottom" TEXT NOT NULL DEFAULT 'lg',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "page_blocks_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -184,3 +214,21 @@ CREATE INDEX "contact_form_submissions_topic_idx" ON "contact_form_submissions"(
 
 -- CreateIndex
 CREATE INDEX "contact_form_submissions_createdAt_idx" ON "contact_form_submissions"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "page_blocks_page_order_idx" ON "page_blocks"("page", "order");
+
+-- CreateIndex
+CREATE INDEX "page_blocks_page_isEnabled_idx" ON "page_blocks"("page", "isEnabled");
+
+-- AddForeignKey
+ALTER TABLE "subcategories" ADD CONSTRAINT "subcategories_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "categories"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "products" ADD CONSTRAINT "products_subcategoryId_fkey" FOREIGN KEY ("subcategoryId") REFERENCES "subcategories"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_images" ADD CONSTRAINT "product_images_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "product_attributes" ADD CONSTRAINT "product_attributes_productId_fkey" FOREIGN KEY ("productId") REFERENCES "products"("id") ON DELETE CASCADE ON UPDATE CASCADE;

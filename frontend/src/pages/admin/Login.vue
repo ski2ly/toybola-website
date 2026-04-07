@@ -32,7 +32,13 @@ const handleSubmit = async () => {
       <div class="bg-white rounded-lg shadow-lg p-8">
         <!-- Logo -->
         <div class="text-center mb-8">
-          <div class="text-3xl font-bold text-brand-red mb-2">TOYBOLA</div>
+          <img
+            src="/images/logo/logotoybola_main.svg"
+            alt="Toybola"
+            class="h-16 mx-auto mb-4 object-contain"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block'"
+          />
+          <div class="text-3xl font-bold text-brand-red mb-2" style="display:none">TOYBOLA</div>
           <h1 class="text-xl text-gray-700">Вход в админ-панель</h1>
         </div>
 
@@ -80,15 +86,6 @@ const handleSubmit = async () => {
             {{ loading ? 'Вход...' : 'Войти' }}
           </button>
         </form>
-
-        <!-- Demo Credentials -->
-        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-          <div class="text-sm font-medium text-gray-700 mb-2">Тестовые данные:</div>
-          <div class="text-sm text-gray-600">
-            <div>Email: <code class="bg-white px-2 py-1 rounded">admin@toybola.com</code></div>
-            <div class="mt-1">Пароль: <code class="bg-white px-2 py-1 rounded">admin123</code></div>
-          </div>
-        </div>
 
         <!-- Back to Site -->
         <div class="mt-6 text-center">

@@ -52,12 +52,26 @@ export class ProductsService {
 
     // Price filter
     if (priceMin !== undefined || priceMax !== undefined) {
-      where.priceMinUsd = {};
+      const priceRange: any = {};
       if (priceMin !== undefined) {
-        where.priceMinUsd.gte = priceMin;
+        priceRange.gte = priceMin;
       }
       if (priceMax !== undefined) {
-        where.priceMinUsd.lte = priceMax;
+        priceRange.lte = priceMax;
+      }
+      // Filter products where the price range overlaps with the requested range
+      where.OR = [
+        { priceMinUsd: priceRange },
+        { priceMaxUsd: priceRange },
+      ];
+      // Also include products where min is below max and max is above min (full overlap)
+      if (priceMin !== undefined && priceMax !== undefined) {
+        where.OR.push({
+          AND: [
+            { priceMinUsd: { lte: priceMax } },
+            { priceMaxUsd: { gte: priceMin } },
+          ],
+        });
       }
     }
 
@@ -76,7 +90,7 @@ export class ProductsService {
       where.isNew = isNew;
     }
 
-    // Search filter (SKU, name) - SQLite doesn't support mode: 'insensitive'
+    // Search filter (SKU, name in all languages) - SQLite doesn't support mode: 'insensitive'
     if (search) {
       // For SQLite, use case-insensitive search via LOWER
       const searchLower = search.toLowerCase();
@@ -84,6 +98,7 @@ export class ProductsService {
         { sku: { contains: searchLower } },
         { nameRu: { contains: searchLower } },
         { nameEn: { contains: searchLower } },
+        { nameUz: { contains: searchLower } },
       ];
     }
 
@@ -206,8 +221,16 @@ export class ProductsService {
     }
 
     const data: any = { ...dto };
-    if (dto.nameRu && !data.slug) {
-      data.slug = slugify(dto.nameRu);
+    if (dto.nameRu && !dto.slug) {
+      const newSlug = slugify(dto.nameRu);
+      // Check for slug collision
+      const slugConflict = await this.prisma.product.findUnique({
+        where: { slug: newSlug },
+      });
+      if (slugConflict && slugConflict.id !== id) {
+        throw new BadRequestException(`Product with slug "${newSlug}" already exists`);
+      }
+      data.slug = newSlug;
     }
 
     const product = await this.prisma.product.update({

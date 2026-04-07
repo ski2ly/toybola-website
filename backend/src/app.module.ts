@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ImportModule } from './import/import.module';
 import { ContactFormModule } from './contact-form/contact-form.module';
 import { SeoModule } from './seo/seo.module';
-// import { PageBlocksModule } from './page-blocks/page-blocks.module';
+import { PageBlocksModule } from './page-blocks/page-blocks.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { SeoModule } from './seo/seo.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 100,
+        limit: 10,
       },
     ]),
     PrismaModule,
@@ -29,7 +29,7 @@ import { SeoModule } from './seo/seo.module';
     ImportModule,
     ContactFormModule,
     SeoModule,
-    // PageBlocksModule, // TODO: Fix route registration
+    PageBlocksModule,
   ],
 })
 export class AppModule {}

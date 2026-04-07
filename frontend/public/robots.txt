@@ -1,5 +1,5 @@
 # robots.txt for Toybola
-# https://toybola.com/robots.txt
+# https://toybola.uz/robots.txt
 
 User-agent: *
 Allow: /
@@ -19,7 +19,7 @@ Disallow: /admin/
 Allow: /admin/login
 
 # Sitemap location
-Sitemap: https://toybola.com/sitemap.xml
+Sitemap: https://toybola.uz/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1

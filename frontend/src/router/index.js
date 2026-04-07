@@ -56,27 +56,30 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
-      path: '/admin/products',
-      name: 'admin-products',
-      component: () => import('@/pages/admin/Products.vue'),
-      meta: { requiresAuth: true }
+      path: '/admin/about',
+      name: 'admin-about',
+      component: () => import('@/pages/admin/PageEditor.vue'),
+      meta: { requiresAuth: true },
+      props: { page: 'about' }
     },
     {
-      path: '/admin/categories',
-      name: 'admin-categories',
-      component: () => import('@/pages/admin/Categories.vue'),
-      meta: { requiresAuth: true }
+      path: '/admin/contacts',
+      name: 'admin-contacts',
+      component: () => import('@/pages/admin/PageEditor.vue'),
+      meta: { requiresAuth: true },
+      props: { page: 'contacts' }
+    },
+    {
+      path: '/admin/production',
+      name: 'admin-production',
+      component: () => import('@/pages/admin/PageEditor.vue'),
+      meta: { requiresAuth: true },
+      props: { page: 'production' }
     },
     {
       path: '/admin/crm',
       name: 'admin-crm',
       component: () => import('@/pages/admin/CRM.vue'),
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/admin/import',
-      name: 'admin-import',
-      component: () => import('@/pages/admin/ImportExcel.vue'),
       meta: { requiresAuth: true }
     },
     // 404 route - должен быть последним
